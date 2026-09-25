@@ -2,7 +2,7 @@ import MyDialog from "@/components/BasicDialog";
 import { Descriptions, Spin, Tag } from "antd";
 
 export type LoginLogDetailData = {
-  infoId?: number;
+  infoId?: string | number;
   userName?: string;
   ipaddr?: string;
   loginLocation?: string;

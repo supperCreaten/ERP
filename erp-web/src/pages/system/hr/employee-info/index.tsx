@@ -4,12 +4,37 @@ import SearchBoxForward from "@/components/SearchBox";
 import TableSection from "@/components/TableSection";
 import { showMessage } from "@/utils/methods";
 import { DownloadOutlined, EyeFilled, EyeInvisibleFilled, LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import type { AnyObject } from "antd/es/_util/type";
-import { Input, Select, Tag, type TableColumnType } from "antd";
+import { Input, Select, Tag, type TableColumnsType } from "antd";
 import { useCallback, useState } from "react";
 import BasicButton from "@/components/BasicButton";
 import { useNavigate } from "react-router-dom";
 import { FormConfig } from "@/interface";
+
+interface EmployeeTableData {
+  userId: string | number;
+  nickName: string;
+  employeeNo: string;
+  userName: string;
+  sex: string;
+  age: number | string;
+  education: string;
+  email: string;
+  idCard: string;
+  phone: string;
+  address: string;
+  status: string | number;
+  createBy: string;
+  createTime: string;
+  idCardCipher?: string;
+  idCardSecretKey?: string;
+  idCardPlain?: string;
+  idCardVisible?: boolean;
+  phoneCipher?: string;
+  phoneSecretKey?: string;
+  phonePlain?: string;
+  phoneVisible?: boolean;
+}
+
 type SensitiveField = "idCard" | "phone";
 
 const SENSITIVE_FIELD_MAP = {
@@ -37,7 +62,7 @@ export default function EmployeeInfo() {
   const [decryptingKeys, setDecryptingKeys] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const toggleSensitive = useCallback(
-    async (record: AnyObject, field: SensitiveField) => {
+    async (record: EmployeeTableData, field: SensitiveField) => {
       const userId = record.userId as string | number | undefined;
       if (userId === undefined || userId === null || userId === "") return;
 
@@ -81,7 +106,7 @@ export default function EmployeeInfo() {
     [patchRow],
   );
 
-  const renderSensitiveCell = (value: unknown, record: AnyObject, field: SensitiveField) => {
+  const renderSensitiveCell = (value: unknown, record: EmployeeTableData, field: SensitiveField) => {
     const keys = SENSITIVE_FIELD_MAP[field];
     const userId = record.userId ?? "";
     const plain = record[keys.plain] as string | undefined;
@@ -130,7 +155,7 @@ export default function EmployeeInfo() {
     },
   ];
 
-  const columns: TableColumnType[] = [
+  const columns: TableColumnsType<EmployeeTableData> = [
     { title: "序号", align: "center", width: 64, fixed: "left", render: (_, _record, index) => index + 1 },
     { title: "员工姓名", dataIndex: "nickName", align: "center", width: 100, fixed: "left", ellipsis: true },
     { title: "员工工号", dataIndex: "employeeNo", align: "center", width: 110, ellipsis: true },
@@ -174,7 +199,7 @@ export default function EmployeeInfo() {
         <SearchBoxForward ref={searchRef} formConfig={formConfig} onSearch={onSearch} />
       </TableSection.Header>
       <TableSection.Content>
-        <BasicTable rowKey="userId" onGetParams={onGetParams} onTableReady={onTableReady} columns={columns} callback={api.getUserList} otherTableProps={{ scroll: { x: 1800 } }}>
+        <BasicTable<EmployeeTableData> rowKey="userId" onGetParams={onGetParams} onTableReady={onTableReady} columns={columns} callback={api.getUserList} otherTableProps={{ scroll: { x: 1800 } }}>
           <BasicTable.ToolbarRight>
             <BasicButton
               color="primary"

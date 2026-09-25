@@ -11,4 +11,5 @@ public interface SalesCustomerService {
     void insertSalesCustomer(CustomerAddDTO customerAddDTO);
     void updateSalesCustomer(CustomerAddDTO customerAddDTO);
     CustomerVO selectCustomerById(Long customerId);
+    void deleteSalesCustomer(Long[] customerIds);
 }

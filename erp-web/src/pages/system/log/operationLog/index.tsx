@@ -4,15 +4,27 @@ import BasicTable, { useBasicTable } from "@/components/BasicTable";
 import TableSection from "@/components/TableSection";
 import api from "@/api";
 import AntButton from "@/components/BasicButton";
-import { DatePicker, Input, Select, TableColumnProps } from "antd";
-import { AnyObject } from "antd/es/_util/type";
+import { DatePicker, Input, Select, type TableColumnsType } from "antd";
 import { showMessage } from "@/utils/methods";
 import { modal } from "@/utils/static-antd";
 import type { Dayjs } from "dayjs";
 import OperLogDetail, { type OperLogDetailData } from "./compontent/operLogDetail";
 import TableOperation, { TABLE_LINK_BTN_CLASS } from "@/components/TableOperation";
-import { unwrapData, unwrapDataWith } from "@/utils/apiResponse";
+import { unwrapData } from "@/utils/apiResponse";
 import { FormConfig } from "@/interface";
+
+interface OperLogTableData {
+  operId: number | string;
+  title: string;
+  businessType: number;
+  requestMethod: string;
+  operName: string;
+  operUrl: string;
+  operIp: string;
+  status: number;
+  costTime: string | number;
+  operTime: string;
+}
 
 const businessTypeRecord: Record<number, string> = {
   0: "其它",
@@ -91,7 +103,7 @@ function OperationLog() {
     },
   ];
 
-  const columns: TableColumnProps[] = [
+  const columns: TableColumnsType<OperLogTableData> = [
     {
       title: "序号",
       width: 80,
@@ -162,7 +174,7 @@ function OperationLog() {
       dataIndex: "operation",
       key: "operation",
       align: "center",
-      render: (_text, record: AnyObject) => (
+      render: (_text, record: OperLogTableData) => (
         <TableOperation>
           <AntButton type="link" className={TABLE_LINK_BTN_CLASS} onClick={() => void openDetail(record?.operId)}>
             详情
@@ -172,7 +184,7 @@ function OperationLog() {
     },
   ];
 
-  const openDetail = async (operId: number) => {
+  const openDetail = async (operId: string | number) => {
     setDetailOpen(true);
     setDetailLoading(true);
     setDetail(null);
@@ -222,7 +234,7 @@ function OperationLog() {
         <SearchBox formConfig={formConfig} ref={searchRef} onSearch={onSearch} />
       </TableSection.Header>
       <TableSection.Content>
-        <BasicTable columns={columns} onTableReady={onTableReady} callback={api.getOperLogList} rowKey="operId" onGetParams={onGetParams}>
+        <BasicTable<OperLogTableData> columns={columns} onTableReady={onTableReady} callback={api.getOperLogList} rowKey="operId" onGetParams={onGetParams}>
           <BasicTable.ToolbarRight>
             <AntButton danger onClick={handleClean}>
               清空

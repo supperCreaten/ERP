@@ -4,11 +4,20 @@ import BasicForm from "@/components/BasicForm"
 import BasicTable from "@/components/BasicTable"
 import LayoutTitle from "@/components/LayoutTitle"
 import { FormConfig } from "@/interface"
-import { Form, Input, Radio, Switch, TableColumnProps } from "antd"
-import { useEffect, useRef, useState } from "react"
+import { Input, Radio, Switch, type TableColumnsType } from "antd"
+import { useEffect, useRef } from "react"
 import { useDictionaryStore } from "./useDictionaryProvider"
 import api from "@/api"
 import { showMessage } from "@/utils/methods"
+
+interface DictItemTableData {
+  id: string | number
+  dictLabel: string
+  dictValue: string
+  status: string
+  remark: string
+}
+
 export default function createDictionary(props: { visible: boolean; title: string; onOk: () => void }) {
   const { visible, title, onOk } = props
   const [form] = BasicForm.useForm()
@@ -50,7 +59,7 @@ export default function createDictionary(props: { visible: boolean; title: strin
       colProps: { xl: 24 },
     },
   ]
-  const columns: TableColumnProps[] = [
+  const columns: TableColumnsType<DictItemTableData> = [
     {
       title: "序号",
       align: "center",
@@ -129,7 +138,7 @@ export default function createDictionary(props: { visible: boolean; title: strin
       key: "operation",
       width: 80,
       align: "center",
-      render: (text, record) => (
+      render: (text, record: DictItemTableData) => (
         <BasicButton color="danger" variant="link">
           删除
         </BasicButton>
@@ -202,7 +211,7 @@ export default function createDictionary(props: { visible: boolean; title: strin
         />
       </LayoutTitle>
       <LayoutTitle title="字典数据配置" isShow={false}>
-        <BasicTable
+        <BasicTable<DictItemTableData>
           ref={tableRef}
           columns={columns}
           isShowPage={false}

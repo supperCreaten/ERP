@@ -71,4 +71,16 @@ public class SalesCustomerController extends BaseController {
             throw new RuntimeException(e);
         }
     }
+
+    @Operation(summary = "删除客户")
+    @Log(title = "客户资料", businessType = BusinessType.DELETE)
+    @PostMapping("/delete")
+    public AjaxResult delete( @Validated @RequestBody  Long[] customerIds) {
+        try {
+            customerService.deleteSalesCustomer(customerIds);
+            return toAjax(true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

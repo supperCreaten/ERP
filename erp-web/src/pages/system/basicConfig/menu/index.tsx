@@ -3,11 +3,9 @@ import SearchBox from "@/components/SearchBox";
 import BasicTable, { useBasicTable } from "@/components/BasicTable";
 import api from "@/api";
 import AntButton from "@/components/BasicButton";
-import { Input, Select, Tag } from "antd";
-import type { TableColumnProps } from "antd";
+import { Input, Select, Tag, type TableColumnsType } from "antd";
 import { MenuModalProvider, useMenuModalStore } from "./compontent/useMenuProvider";
 import AddMenu from "./compontent/addMenu";
-import type { AnyObject } from "antd/es/_util/type";
 import { showMessage } from "@/utils/methods";
 import { modal } from "@/utils/static-antd";
 import CreateComponent from "@/components/CreateComponent";
@@ -17,6 +15,21 @@ import { MENU_TYPE_LABEL } from "./constants";
 import { createAuditColumns } from "@/utils/auditColumns";
 import TableOperation, { TABLE_LINK_BTN_CLASS } from "@/components/TableOperation";
 import { FormConfig } from "@/interface";
+
+interface MenuTableData {
+  menuId: string;
+  menuName: string;
+  icon?: string;
+  meta?: { icon?: string };
+  orderNum: number;
+  perms: string;
+  menuType: number;
+  status: number;
+  createBy: string;
+  createTime: string;
+  updateBy: string;
+  updateTime: string;
+}
 
 function Menu() {
   const { searchRef, onTableReady, onGetParams, onSearch, refreshTable } = useBasicTable();
@@ -37,7 +50,7 @@ function Menu() {
     },
   ];
 
-  const columns: TableColumnProps[] = [
+  const columns: TableColumnsType<MenuTableData> = [
     {
       title: "菜单名称",
       key: "menuName",
@@ -87,7 +100,7 @@ function Menu() {
       align: "center",
       render: (status: number) => (status === 0 ? <Tag color="processing">正常</Tag> : <Tag color="default">停用</Tag>),
     },
-    ...createAuditColumns(),
+    ...createAuditColumns<MenuTableData>(),
     {
       title: "操作",
       dataIndex: "operation",
@@ -95,7 +108,7 @@ function Menu() {
       width: 120,
       fixed: "right",
       align: "center",
-      render: (_text, record: AnyObject) => (
+      render: (_text, record: MenuTableData) => (
         <TableOperation size={8}>
           <AntButton
             type="link"
@@ -135,7 +148,7 @@ function Menu() {
     },
   ];
 
-  const handleDelete = (record: AnyObject) => {
+  const handleDelete = (record: MenuTableData) => {
     modal.confirm({
       title: "提示",
       content: `是否确认删除名称为「${record.menuName}」的数据项？`,
@@ -157,7 +170,7 @@ function Menu() {
         <SearchBox formConfig={formConfig} ref={searchRef} onSearch={onSearch} />
       </TableSection.Header>
       <TableSection.Content>
-        <BasicTable
+        <BasicTable<MenuTableData>
           key="menu-expanded"
           columns={columns}
           onTableReady={onTableReady}

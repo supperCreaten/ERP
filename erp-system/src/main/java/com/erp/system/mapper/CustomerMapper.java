@@ -44,14 +44,6 @@ public interface CustomerMapper {
     int updateCustomer(CustomerAddDTO customer);
 
     /**
-     * 逻辑删除客户
-     *
-     * @param customerId 客户ID
-     * @return 影响行数
-     */
-    int deleteCustomerById(Long customerId);
-
-    /**
      * 批量逻辑删除客户
      *
      * @param customerIds 客户ID数组

@@ -4,17 +4,28 @@ import SearchBox from "@/components/SearchBox";
 import BasicTable from "@/components/BasicTable";
 import api from "@/api";
 import AntButton from "@/components/BasicButton";
-import { Input, Select, Switch, TableColumnProps } from "antd";
+import { Input, Select, Switch, type TableColumnsType } from "antd";
 import { PermissionProvider, useRoleStore } from "./compontent/useRoleProvider";
 import AuthConfig from "./compontent/authConfig";
 import AddRole from "./compontent/addRole";
-import { AnyObject } from "antd/es/_util/type";
 import { showMessage } from "@/utils/methods";
 import { modal } from "@/utils/static-antd";
 import TableSection from "@/components/TableSection";
 import { createAuditColumns } from "@/utils/auditColumns";
 import TableOperation, { TABLE_LINK_BTN_CLASS } from "@/components/TableOperation";
 import { FormConfig } from "@/interface";
+
+interface RoleTableData {
+  roleId: string;
+  roleKey: string;
+  roleName: string;
+  status: string | number;
+  createBy: string;
+  createTime: string;
+  updateBy: string;
+  updateTime: string;
+}
+
 function Role() {
   const searchRef = useRef<any>(null);
   const tableRef = useRef<any>(null);
@@ -52,7 +63,7 @@ function Role() {
       colProps: { xl: 8, lg: 12, md: 24, sm: 24, xs: 24 },
     },
   ];
-  const columns: TableColumnProps[] = [
+  const columns: TableColumnsType<RoleTableData> = [
     {
       title: "序号",
       align: "center",
@@ -80,7 +91,7 @@ function Role() {
       key: "status",
       width: 88,
       align: "center",
-      render: (text, record) => {
+      render: (text, record: RoleTableData) => {
         return (
           <Switch
             checked={text === 0 || text === "0"}
@@ -95,7 +106,7 @@ function Role() {
         );
       },
     },
-    ...createAuditColumns(),
+    ...createAuditColumns<RoleTableData>(),
     {
       title: "操作",
       dataIndex: "operation",
@@ -103,7 +114,7 @@ function Role() {
       width: 220,
       fixed: "right",
       align: "center",
-      render: (text, record) => (
+      render: (text, record: RoleTableData) => (
         <TableOperation>
           <AntButton
             type="link"
@@ -129,7 +140,7 @@ function Role() {
       ),
     },
   ];
-  const handleDelete = (record: AnyObject) => {
+  const handleDelete = (record: RoleTableData) => {
     modal.confirm({
       title: "提示",
       content: "确定要删除吗？",
@@ -143,7 +154,7 @@ function Role() {
       onCancel: () => {},
     });
   };
-  const handleAuthConfig = (record: AnyObject) => {
+  const handleAuthConfig = (record: RoleTableData) => {
     dispatch({
       type: "PERMISSION",
       permissionVisible: true,
@@ -160,7 +171,7 @@ function Role() {
         <SearchBox formConfig={formConfig} ref={searchRef} onSearch={() => tableRef.current?.getTableData()} />
       </TableSection.Header>
       <TableSection.Content>
-        <BasicTable columns={columns} ref={tableRef} callback={api.getRoleList} otherTableProps={{ rowKey: "roleId", scroll: { x: 1400 } }} onGetParams={onGetParams}>
+        <BasicTable<RoleTableData> columns={columns} ref={tableRef} callback={api.getRoleList} otherTableProps={{ rowKey: "roleId", scroll: { x: 1400 } }} onGetParams={onGetParams}>
           <BasicTable.ToolbarRight>
             <AntButton
               type="primary"

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { DeleteOutlined, DownloadOutlined } from "@ant-design/icons";
-import { DatePicker, Input, Select, Tag, type TableColumnProps, type TableProps } from "antd";
-import type { AnyObject } from "antd/es/_util/type";
+import { DatePicker, Input, Select, Tag, type TableColumnsType } from "antd";
 import type { Dayjs } from "dayjs";
 import type { Key } from "react";
+import type { TableRowSelection } from "antd/es/table/interface";
 import SearchBox from "@/components/SearchBox";
 import BasicTable, { useBasicTable } from "@/components/BasicTable";
 import TableSection from "@/components/TableSection";
@@ -13,8 +13,21 @@ import api from "@/api";
 import { showMessage } from "@/utils/methods";
 import { modal } from "@/utils/static-antd";
 import LoginLogDetail, { type LoginLogDetailData } from "./compontent/loginLogDetail";
-import { unwrapData, unwrapDataWith } from "@/utils/apiResponse";
+import { unwrapData } from "@/utils/apiResponse";
 import { FormConfig } from "@/interface";
+
+interface LoginLogTableData {
+  infoId: number | string;
+  userName: string;
+  ipaddr: string;
+  loginLocation: string;
+  os: string;
+  browser: string;
+  clientType: string;
+  status: string;
+  msg: string;
+  loginTime: string;
+}
 
 function LoginLogPage() {
   const { searchRef, onTableReady, onSearch, refreshTable } = useBasicTable();
@@ -61,7 +74,7 @@ function LoginLogPage() {
     },
   ];
 
-  const columns: TableColumnProps[] = [
+  const columns: TableColumnsType<LoginLogTableData> = [
     {
       title: "访问编号",
       dataIndex: "infoId",
@@ -141,7 +154,7 @@ function LoginLogPage() {
       width: 88,
       fixed: "right",
       align: "center",
-      render: (_text, record: AnyObject) => (
+      render: (_text, record: LoginLogTableData) => (
         <TableOperation>
           <AntButton type="link" className={TABLE_LINK_BTN_CLASS} onClick={() => void openDetail(record?.infoId)}>
             详情
@@ -151,7 +164,7 @@ function LoginLogPage() {
     },
   ];
 
-  const openDetail = async (infoId: number) => {
+  const openDetail = async (infoId: string | number) => {
     setDetailOpen(true);
     setDetailLoading(true);
     setDetail(null);
@@ -176,7 +189,7 @@ function LoginLogPage() {
     };
   };
 
-  const handleDelete = (record?: AnyObject) => {
+  const handleDelete = (record?: LoginLogTableData) => {
     const ids = record?.infoId ? [record.infoId] : selectedRowKeys;
     if (!ids.length) {
       showMessage("请选择要删除的记录", "warning");
@@ -222,7 +235,7 @@ function LoginLogPage() {
     showMessage("导出功能开发中", "info");
   };
 
-  const rowSelection: TableProps["rowSelection"] = {
+  const rowSelection: TableRowSelection<LoginLogTableData> = {
     selectedRowKeys,
     onChange: (keys) => setSelectedRowKeys(keys),
   };
@@ -233,7 +246,7 @@ function LoginLogPage() {
         <SearchBox formConfig={formConfig} ref={searchRef} onSearch={onSearch} />
       </TableSection.Header>
       <TableSection.Content>
-        <BasicTable
+        <BasicTable<LoginLogTableData>
           columns={columns}
           onTableReady={onTableReady}
           callback={api.getLoginLogList}

@@ -1,3 +1,4 @@
+import { useState } from "react"
 import BasicButton from "@/components/BasicButton"
 import AntButton from "@/components/BasicButton"
 import BasicTable, { useBasicTable } from "@/components/BasicTable"
@@ -6,14 +7,29 @@ import TableOperation from "@/components/TableOperation"
 import TableSection from "@/components/TableSection"
 import { FormConfig } from "@/interface"
 import { createAuditColumns } from "@/utils/auditColumns"
-import { PlusOutlined } from "@ant-design/icons"
-import { Input, TableColumnProps } from "antd"
-import { AnyObject } from "antd/es/_util/type"
+import { DeleteFilled, ExportOutlined, ImportOutlined, PlusOutlined } from "@ant-design/icons"
+import { Input, TableColumnsType } from "antd"
 import CreateCustomer from "./createCustomer/createCustomer"
-import { useState } from "react"
+import { modal } from "@/utils/static-antd"
 import api from "@/api"
+import { showMessage } from "@/utils/methods"
+import { TableRowSelection } from "antd/es/table/interface"
+interface CustomerTableData {
+  customerId: string
+  customerName: string
+  shortName: string
+  address: string
+  contactPerson: string
+  contactPhone: string
+  createTime: string
+  createBy: string
+  updateTime: string
+  updateBy: string
+  status: number
+}
 export default function SalesCustomer() {
   const { searchRef, onTableReady, onSearch, refreshTable } = useBasicTable()
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [openInfo, setOpenInfo] = useState<{ open: boolean; customerId: string }>({ open: false, customerId: "" })
   const formConfig: FormConfig[] = [
     {
@@ -25,7 +41,7 @@ export default function SalesCustomer() {
       component: <Input placeholder="请输入联系人" allowClear />,
     },
   ]
-  const columns: TableColumnProps[] = [
+  const columns: TableColumnsType<CustomerTableData> = [
     {
       title: "序号",
       key: "menuName",
@@ -74,7 +90,7 @@ export default function SalesCustomer() {
       align: "center",
       ellipsis: true,
     },
-    ...createAuditColumns(),
+    ...createAuditColumns<CustomerTableData>(),
     {
       title: "操作",
       dataIndex: "operation",
@@ -82,7 +98,7 @@ export default function SalesCustomer() {
       width: 120,
       fixed: "right",
       align: "center",
-      render: (_text, record: AnyObject) => (
+      render: (_text, record: CustomerTableData) => (
         <TableOperation size={8}>
           <AntButton
             type="link"
@@ -93,28 +109,65 @@ export default function SalesCustomer() {
           >
             修改
           </AntButton>
-          <AntButton type="link" size="small" danger>
+          <AntButton
+            type="link"
+            size="small"
+            danger
+            onClick={() => {
+              modal.confirm({
+                type: "warning",
+                title: "删除",
+                content: "确定要删除吗？",
+                onOk: () => handleDelete([record?.customerId]),
+              })
+            }}
+          >
             删除
           </AntButton>
         </TableOperation>
       ),
     },
   ]
+  const rowSelection: TableRowSelection<CustomerTableData> = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: React.Key[]) => {
+      setSelectedRowKeys(newSelectedRowKeys)
+    },
+  }
+  const handleDelete = async (ids: string[]) => {
+    modal.confirm({
+      title: "删除",
+      content: "确定删除选择的客户吗？",
+      onOk: async () => {
+        await api.deleteCustomer(ids)
+        showMessage("删除成功", "success")
+        refreshTable()
+        setSelectedRowKeys([])
+      },
+    })
+  }
   const onClose = () => {
     setOpenInfo({ open: false, customerId: "" })
   }
   return (
     <TableSection>
       <TableSection.Header>
-        <SearchBoxForward formConfig={formConfig} onSearch={onSearch} />
+        <SearchBoxForward
+          formConfig={formConfig}
+          onSearch={() => {
+            setSelectedRowKeys([])
+            onSearch()
+          }}
+        />
       </TableSection.Header>
       <TableSection.Content>
-        <BasicTable
+        <BasicTable<CustomerTableData>
           columns={columns}
           rowKey="customerId"
           onGetParams={() => searchRef.current?.getFieldsValue(true)}
           onTableReady={onTableReady}
           callback={api.customerPageQuery}
+          rowSelection={rowSelection}
         >
           <BasicTable.ToolbarRight>
             <BasicButton
@@ -122,6 +175,31 @@ export default function SalesCustomer() {
               title="创建客户"
               icon={<PlusOutlined />}
               onClick={() => setOpenInfo({ open: true, customerId: "" })}
+            />
+            <BasicButton
+              title="批量删除"
+              danger
+              icon={<DeleteFilled />}
+              onClick={() => {
+                if (!selectedRowKeys.length) {
+                  showMessage("请勾选数据后重试", "warning")
+                  return
+                }
+                handleDelete(selectedRowKeys as Array<string>)
+              }}
+            />
+            <BasicButton
+              title="导入"
+              color="orange"
+              variant="solid"
+              icon={<ImportOutlined />}
+            />
+            <BasicButton
+              type="primary"
+              title="导出"
+              color="purple"
+              variant="solid"
+              icon={<ExportOutlined />}
             />
           </BasicTable.ToolbarRight>
         </BasicTable>

@@ -70,4 +70,11 @@ public class SalesCustomerServiceImpl implements SalesCustomerService {
         BeanUtils.copyBeanProp(target, records);
         return target;
     }
+
+    public void deleteSalesCustomer(Long[] customerIds){
+        if(customerIds == null || customerIds.length == 0){
+            throw new ServiceException("主键id不能为空");
+        }
+        customerMapper.deleteCustomerByIds(customerIds);
+    }
 }

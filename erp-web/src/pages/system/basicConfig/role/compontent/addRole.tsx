@@ -13,8 +13,9 @@ const MENU_TREE_HEIGHT = 320;
 const ROLE_FORM_LABEL_COL = { span: 6 };
 const ROLE_FORM_WRAPPER_COL = { span: 18 };
 
-function toMenuIds(keys: Key[]): number[] {
-  return keys.map((k) => (typeof k === "number" ? k : typeof k === "string" && k ? Number(k) : NaN)).filter((n) => Number.isFinite(n));
+/** 主键以字符串提交，避免雪花 ID 经 Number 丢精度 */
+function toMenuIds(keys: Key[]): string[] {
+  return keys.map((k) => String(k)).filter((k) => k !== "");
 }
 
 export default function AddRole(props: { onClose: (type?: string) => void }) {
@@ -96,7 +97,7 @@ export default function AddRole(props: { onClose: (type?: string) => void }) {
         data?: { checkedKeys?: (string | number)[] };
       };
       const keys = res?.checkedKeys ?? res?.data?.checkedKeys ?? [];
-      setSelectedMenuKeys(keys.map((id) => Number(id)));
+      setSelectedMenuKeys(keys.map((id) => String(id)));
     } catch {
       setSelectedMenuKeys([]);
     }

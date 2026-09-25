@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo, useReducer } from "react";
 
 export type MenuTreeNode = {
-  menuId: number;
+  menuId: string | number;
   menuName: string;
   children?: MenuTreeNode[];
 };

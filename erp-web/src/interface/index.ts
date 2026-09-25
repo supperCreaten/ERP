@@ -17,7 +17,7 @@ export interface MenuInfo {
     icon: string;
     keepAlive?: boolean | number;
   };
-  parentId: number;
+  parentId: string | number;
   children?: MenuInfo[] | null;
 }
 export type MenuItemType = Required<MenuProps>["items"][number] & {

@@ -129,10 +129,13 @@
         where customer_id = #{customerId} and is_del = '0'
     </update>
 
-    <update id="deleteCustomerById" parameterType="Long">
+    <update id="deleteCustomerByIds" parameterType="Long">
         update biz_customer
         set is_del = '1', update_time = sysdate()
-        where customer_id = #{customerId}
+        where customer_id in
+        <foreach collection="customerIds" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </update>
 
 </mapper>

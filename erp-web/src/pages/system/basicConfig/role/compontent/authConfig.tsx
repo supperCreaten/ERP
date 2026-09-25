@@ -2,7 +2,7 @@ import { SaveOutlined } from "@ant-design/icons";
 import { Key, useCallback, useEffect, useMemo, useRef } from "react";
 import MyDialog from "@/components/BasicDialog";
 import AntButton from "@/components/BasicButton";
-import { Card, Input, TableColumnProps } from "antd";
+import { Card, Input, type TableColumnsType } from "antd";
 import SearchBox from "@/components/SearchBox";
 import BasicTable from "@/components/BasicTable";
 import api from "@/api";
@@ -11,6 +11,12 @@ import { showMessage } from "@/utils/methods";
 import { FormConfig } from "@/interface";
 
 const PANEL_HEIGHT = 420;
+
+interface AuthUserTableData {
+  userId: string | number;
+  account: string;
+  nickName: string;
+}
 
 export default function AuthConfig(props: { onClose: () => void }) {
   const { onClose } = props;
@@ -32,7 +38,7 @@ export default function AuthConfig(props: { onClose: () => void }) {
     [],
   );
 
-  const columns: TableColumnProps[] = useMemo(
+  const columns: TableColumnsType<AuthUserTableData> = useMemo(
     () => [
       { title: "账号", dataIndex: "account", key: "account", ellipsis: true },
       { title: "昵称", dataIndex: "nickName", key: "nickName", ellipsis: true },
@@ -50,7 +56,7 @@ export default function AuthConfig(props: { onClose: () => void }) {
       const records = Array.isArray(page?.records) ? page.records : Array.isArray(res?.data) ? (res.data as { userId: string | number }[]) : [];
       dispatch({
         type: "SET_SELECTED_USER_KEYS",
-        selectedUserKeys: records.map((v) => +v.userId),
+        selectedUserKeys: records.map((v) => String(v.userId)),
       });
     } catch {
       dispatch({ type: "SET_SELECTED_USER_KEYS", selectedUserKeys: [] });
@@ -87,7 +93,7 @@ export default function AuthConfig(props: { onClose: () => void }) {
       <Card size="small" className="[&_.ant-card-body]:flex [&_.ant-card-body]:min-h-0 [&_.ant-card-body]:flex-col">
         <SearchBox formConfig={formConfig} ref={searchRef} fieldsPerRow={2} onSearch={() => tableRef.current?.getTableData()} />
         <div className="min-h-0 flex-1" style={{ height: PANEL_HEIGHT }}>
-          <BasicTable
+          <BasicTable<AuthUserTableData>
             ref={tableRef}
             columns={columns}
             callback={api.getUserList}

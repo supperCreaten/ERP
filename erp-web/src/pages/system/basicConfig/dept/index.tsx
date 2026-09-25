@@ -5,8 +5,19 @@ import TableOperation, { TABLE_LINK_BTN_CLASS } from "@/components/TableOperatio
 import TableSection from "@/components/TableSection";
 import { FormConfig } from "@/interface";
 import { createAuditColumns } from "@/utils/auditColumns";
-import { Input, Select, TableColumnProps } from "antd";
+import { Input, Select, type TableColumnsType } from "antd";
 import { useRef } from "react";
+
+interface DeptTableData {
+  deptId: string | number;
+  dictName: string;
+  status: string;
+  roleName: string;
+  createBy: string;
+  createTime: string;
+  updateBy: string;
+  updateTime: string;
+}
 
 export default function dept() {
   const searchFormRef = useRef<any>(null);
@@ -35,7 +46,7 @@ export default function dept() {
       colProps: { xl: 8, lg: 12, md: 24, sm: 24, xs: 24 },
     },
   ];
-  const columns: TableColumnProps[] = [
+  const columns: TableColumnsType<DeptTableData> = [
     {
       title: "序号",
       align: "center",
@@ -68,7 +79,7 @@ export default function dept() {
       align: "center",
       ellipsis: true,
     },
-    ...createAuditColumns(),
+    ...createAuditColumns<DeptTableData>(),
     {
       title: "操作",
       dataIndex: "operation",
@@ -76,7 +87,7 @@ export default function dept() {
       width: 220,
       fixed: "right",
       align: "center",
-      render: (text, record) => (
+      render: (text, record: DeptTableData) => (
         <TableOperation>
           <BasicButton
             type="link"
@@ -108,7 +119,7 @@ export default function dept() {
         <SearchBoxForward ref={searchFormRef} formConfig={formConfig} onSearch={() => tableRef.current?.getTableData()} />
       </TableSection.Header>
       <TableSection.Content>
-        <BasicTable ref={tableRef} columns={columns} rowKey="deptId" callback={() => Promise.resolve([])} onGetParams={onGetParams} isShowPage={false}></BasicTable>
+        <BasicTable<DeptTableData> ref={tableRef} columns={columns} rowKey="deptId" callback={() => Promise.resolve([])} onGetParams={onGetParams} isShowPage={false}></BasicTable>
       </TableSection.Content>
     </TableSection>
   );

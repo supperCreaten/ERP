@@ -2,6 +2,7 @@ import React, { forwardRef, useContext, useLayoutEffect, useMemo, useRef } from 
 import { TableSectionScrollContext } from "@/components/TableSection/context";
 import { cn } from "@/utils/methods";
 import { ConfigProvider, Table } from "antd";
+import type { AnyObject } from "antd/es/_util/type";
 import zhCN from "antd/es/locale/zh_CN";
 import useAutoResize from "@/hooks/use-resize";
 import type { BasicTableHandle, BasicTableProps } from "./types";
@@ -12,7 +13,7 @@ export type { BasicTableHandle, BasicTableProps } from "./types";
 export { BasicTableToolbarLeft, BasicTableToolbarRight };
 export { useBasicTable } from "./useBasicTable";
 
-const BasicTable = forwardRef<BasicTableHandle, BasicTableProps>(function BasicTable(props, ref) {
+function BasicTableInner<T extends AnyObject = AnyObject>(props: BasicTableProps<T>, ref: React.ForwardedRef<BasicTableHandle>) {
   const {
     tableLayout = "fixed",
     columns,
@@ -26,6 +27,7 @@ const BasicTable = forwardRef<BasicTableHandle, BasicTableProps>(function BasicT
     onTableReady,
     rowKey,
     isRequest = true,
+    rowSelection,
   } = props;
 
   const { toolbarLeft, toolbarRight } = useMemo(() => parseToolbarChildren(children), [children]);
@@ -44,7 +46,7 @@ const BasicTable = forwardRef<BasicTableHandle, BasicTableProps>(function BasicT
     onGetParams,
     isShowPage,
     reloadKey,
-    rowKey,
+    rowKey: rowKey as string | undefined,
     isRequest,
     onTableReady,
     ref,
@@ -106,14 +108,15 @@ const BasicTable = forwardRef<BasicTableHandle, BasicTableProps>(function BasicT
           </div>
         ) : null}
         <div data-basic-table-scroll-area className={cn("min-h-0", needsCardScroll ? "shrink-0 overflow-visible" : "flex-1 overflow-hidden")} style={scrollAreaStyle}>
-          <Table
+          <Table<T>
             key={reloadKey}
             bordered
             tableLayout={tableLayout}
             columns={columns}
             loading={state.loading}
-            dataSource={state.tableData}
-            rowKey={rowKey || "id"}
+            dataSource={state.tableData as T[]}
+            rowKey={(rowKey as string | ((record: T) => React.Key)) || "id"}
+            rowSelection={rowSelection}
             scroll={scroll}
             style={otherStyles}
             pagination={pagination}
@@ -124,16 +127,19 @@ const BasicTable = forwardRef<BasicTableHandle, BasicTableProps>(function BasicT
       </div>
     </ConfigProvider>
   );
-});
-BasicTable.displayName = "BasicTable";
+}
 
-type BasicTableComponent = typeof BasicTable & {
+type BasicTableComponent = (<T extends AnyObject = AnyObject>(
+  props: BasicTableProps<T> & React.RefAttributes<BasicTableHandle>,
+) => React.ReactElement | null) & {
   ToolbarLeft: typeof BasicTableToolbarLeft;
   ToolbarRight: typeof BasicTableToolbarRight;
+  displayName?: string;
 };
 
-const BasicTableWithSlots = BasicTable as BasicTableComponent;
-BasicTableWithSlots.ToolbarLeft = BasicTableToolbarLeft;
-BasicTableWithSlots.ToolbarRight = BasicTableToolbarRight;
+const BasicTable = forwardRef(BasicTableInner) as unknown as BasicTableComponent;
+BasicTable.displayName = "BasicTable";
+BasicTable.ToolbarLeft = BasicTableToolbarLeft;
+BasicTable.ToolbarRight = BasicTableToolbarRight;
 
-export default BasicTableWithSlots;
+export default BasicTable;

@@ -84,7 +84,7 @@ function IconAutoComplete(props: { value?: string; onChange?: (value: string) =>
 }
 
 type MenuFormValues = {
-  parentId?: number;
+  parentId?: string | number;
   menuType?: string;
   icon?: string;
   menuName?: string;
@@ -98,7 +98,7 @@ type MenuFormValues = {
 };
 
 type MenuDetail = {
-  parentId?: number;
+  parentId?: string | number;
   menuType?: string | number;
   icon?: string;
   menuName?: string;
@@ -114,7 +114,7 @@ type MenuDetail = {
 };
 
 function buildParentTreeData(list: MenuTreeNode[] = []): MenuTreeNode[] {
-  return [{ menuId: 0, menuName: "主类目", children: list }];
+  return [{ menuId: "0", menuName: "主类目", children: list }];
 }
 
 function asOptionValue(value?: string | number, fallback = "0") {
@@ -123,7 +123,7 @@ function asOptionValue(value?: string | number, fallback = "0") {
 
 function mapDetailToForm(data?: MenuDetail): MenuFormValues {
   return {
-    parentId: data?.parentId ?? 0,
+    parentId: data?.parentId != null && data.parentId !== "" ? data.parentId : "0",
     menuType: asOptionValue(data?.menuType, MENU_TYPE.DIRECTORY),
     icon: data?.icon || undefined,
     menuName: data?.menuName,
@@ -153,7 +153,7 @@ function buildSubmitPayload(values?: MenuFormValues, menuId?: string) {
     ...(menuId ? { menuId } : {}),
     menuName: values?.menuName,
     menuType,
-    parentId: values?.parentId ?? 0,
+    parentId: values?.parentId ?? "0",
     icon: values?.icon,
     perms: values?.perms,
     orderNum: values?.orderNum ?? 0,
@@ -350,7 +350,7 @@ export default function AddMenu(props: { onClose: (type?: string) => void }) {
       try {
         await loadTreeData();
         if (state.menuId && state.title === "新增菜单") {
-          form.setFieldsValue({ parentId: +state.menuId });
+          form.setFieldsValue({ parentId: state.menuId });
         }
         if (!isEdit) return;
         const data = await api.getMenuDetail({ menuId: state.menuId });

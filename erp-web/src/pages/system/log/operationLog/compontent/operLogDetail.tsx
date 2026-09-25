@@ -12,7 +12,7 @@ export type ChangeItem = {
 };
 
 export type OperLogDetailData = {
-  operId: number;
+  operId: string | number;
   title: string;
   businessType: number;
   method: string;
@@ -23,7 +23,7 @@ export type OperLogDetailData = {
   status: number;
   errorMsg?: string;
   operTime: string;
-  costTime: number;
+  costTime: string | number;
   operParam?: string;
   jsonResult?: string;
   changeDiff?: string | ChangeItem[];
