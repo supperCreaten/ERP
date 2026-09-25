@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="erpLogoBg" x1="8" y1="4" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B8CFF"/>
+      <stop offset="1" stop-color="#0958D9"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#erpLogoBg)"/>
+  <!-- industrial plant -->
+  <path fill="#fff" d="M13 49V27h6.5v-9H25v9h3.5l8-6.5V27H51v22H13Z"/>
+  <rect x="16.5" y="31.5" width="4.2" height="4.2" rx=".7" fill="#1677FF"/>
+  <rect x="23" y="31.5" width="4.2" height="4.2" rx=".7" fill="#1677FF"/>
+  <rect x="16.5" y="38.5" width="4.2" height="4.2" rx=".7" fill="#1677FF"/>
+  <rect x="23" y="38.5" width="4.2" height="4.2" rx=".7" fill="#1677FF"/>
+  <rect x="38" y="31.5" width="4.2" height="4.2" rx=".7" fill="#1677FF"/>
+  <rect x="44.5" y="31.5" width="4.2" height="4.2" rx=".7" fill="#1677FF"/>
+  <!-- production gear -->
+  <g transform="translate(45.5 45)">
+    <circle r="11.5" fill="#0958D9"/>
+    <path fill="#fff" d="
+      M-2.2-11.2h4.4v3.2h-4.4zm0 19.2h4.4v3.2h-4.4z
+      M-11.2-2.2h3.2v4.4h-3.2zm19.2 0h3.2v4.4h-3.2z
+    "/>
+    <path fill="#fff" d="
+      M-2.2-11.2h4.4v3.2h-4.4zm0 19.2h4.4v3.2h-4.4z
+      M-11.2-2.2h3.2v4.4h-3.2zm19.2 0h3.2v4.4h-3.2z
+    " transform="rotate(45)"/>
+    <circle r="7.4" fill="#fff"/>
+    <circle r="3.2" fill="#1677FF"/>
+  </g>
+</svg>

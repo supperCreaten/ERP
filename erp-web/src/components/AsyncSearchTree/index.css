@@ -1,0 +1,23 @@
+.async-search-tree {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.async-search-tree-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.async-search-tree .ant-tree-node-content-wrapper {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.async-search-tree .ant-tree-treenode {
+  flex: 1;
+  width: 100%;
+}
+.async-search-tree-highlight {
+  color: #f50;
+}

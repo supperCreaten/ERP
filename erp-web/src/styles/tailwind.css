@@ -1,0 +1,181 @@
+@layer reset, antd;
+@import url("antd/dist/reset.css") layer(reset);
+
+@import url("simplebar-react/dist/simplebar.min.css") layer(simplebar);
+
+@layer simplebar {
+	.simplebar-scrollbar::before {
+		background-color: #909399;
+	}
+
+	.simplebar-wrapper,
+	.simplebar-mask,
+	.simplebar-offset,
+	.simplebar-content-wrapper {
+		background: inherit;
+	}
+
+	.simplebar-content {
+		height: 100%;
+		min-height: 100%;
+	}
+}
+
+@layer theme, base, antd, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+/*
+禁用 Tailwind Preflight，避免与 Ant Design 样式冲突
+@see https://tailwindcss.com/docs/preflight#disabling-preflight
+*/
+/* @import "tailwindcss/preflight.css" layer(base); */
+/*
+  全局提升 utilities 优先级（等同 v3 的 important: true），
+  避免被 antd css-in-js、无 @layer 的自定义 CSS 覆盖，减少在 class 上写 ! 前缀。
+  @see https://tailwindcss.com/docs/upgrade-guide#important-modifier
+*/
+@import "tailwindcss/utilities.css" layer(utilities) important;
+
+
+/* @see https://tailwindcss.com/docs/dark-mode#toggling-dark-mode-manually */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* @see https://tailwindcss.com/docs/theme */
+@theme {
+	/* Use ant design breakpoints */
+	/* @see https://ant.design/components/layout-cn#breakpoint-width */
+	/* @see https://tailwindcss.com/docs/responsive-desig */
+	--breakpoint-xs: 480px;
+	--breakpoint-sm: 576px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 992px;
+	--breakpoint-xl: 1200px;
+	--breakpoint-2xl: 1600px;
+
+	/* @see https://tailwindcss.com/docs/theme#defining-animation-keyframes */
+	--animate-wiggle: wiggle 1s both;
+	--animate-bounce-in-down-out-up: bounce-in-down-out-up 4s ease-in-out 0ms infinite;
+	--animate-flip-fold: flip-fold 0.42s cubic-bezier(0.37, 0.01, 0.32, 1) forwards;
+	--animate-colon-pulse: colon-pulse 1.2s ease-in-out infinite;
+
+	@keyframes flip-fold {
+		from {
+			transform: rotateX(0deg);
+		}
+
+		to {
+			transform: rotateX(-180deg);
+		}
+	}
+
+	@keyframes colon-pulse {
+
+		0%,
+		45% {
+			opacity: 1;
+		}
+
+		50%,
+		95% {
+			opacity: 0.28;
+		}
+
+		100% {
+			opacity: 1;
+		}
+	}
+
+	@keyframes wiggle {
+
+		0%,
+		100% {
+			transform-origin: top;
+		}
+
+		15% {
+			transform: rotateZ(10deg);
+		}
+
+		30% {
+			transform: rotateZ(-10deg);
+		}
+
+		45% {
+			transform: rotateZ(5deg);
+		}
+
+		60% {
+			transform: rotateZ(-5deg);
+		}
+
+		75% {
+			transform: rotateZ(2deg);
+		}
+	}
+
+	@keyframes bounce-in-down-out-up {
+		0% {
+			transform: translateY(0);
+		}
+
+		50% {
+			transform: translateY(-20px);
+		}
+
+		100% {
+			transform: translateY(0);
+		}
+	}
+}
+
+/* @see https://tailwindcss.com/docs/adding-custom-styles#adding-custom-variants */
+/*
+添加 lang 伪类选择器
+
+@example
+```
+en-US:text-white
+not-en-US:text-black
+```
+*/
+@custom-variant en-US {
+  &:where(:lang(en-US)) {
+    @slot;
+  }
+}
+
+@custom-variant zh-CN {
+  &:where(:lang(zh-CN)) {
+    @slot;
+  }
+}
+
+/* 为每种语言创建不匹配变体 */
+@custom-variant not-en-US {
+  &:where(:not(:lang(en-US))) {
+    @slot;
+  }
+}
+
+@custom-variant not-zh-CN {
+  &:where(:not(:lang(zh-CN))) {
+    @slot;
+  }
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+html.color-blind-mode {
+	@apply invert;
+}
+
+html.gray-mode {
+	@apply grayscale;
+}
+
+@import "./bundled-layer.css";
+
+/* 为 Tailwind 添加自定义插件 */
+@plugin "../plugins/tailwind.ts"

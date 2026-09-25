@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erp.system.mapper.SysOperLogMapper">
+
+	<resultMap type="com.erp.system.domain.SysOperLog" id="SysOperLogResult">
+		<id     property="operId"         column="oper_id"       />
+		<result property="title"          column="title"         />
+		<result property="businessType"   column="business_type" />
+		<result property="method"         column="method"        />
+		<result property="requestMethod"  column="request_method"/>
+		<result property="operatorType"   column="operator_type" />
+		<result property="operName"       column="oper_name"     />
+		<result property="deptName"       column="dept_name"     />
+		<result property="operUrl"        column="oper_url"      />
+		<result property="operIp"         column="oper_ip"       />
+		<result property="operLocation"   column="oper_location" />
+		<result property="operParam"      column="oper_param"    />
+		<result property="jsonResult"     column="json_result"   />
+		<result property="changeDiff"     column="change_diff"   />
+		<result property="status"         column="status"        />
+		<result property="errorMsg"       column="error_msg"     />
+		<result property="operTime"       column="oper_time"     />
+		<result property="costTime"       column="cost_time"     />
+		<result property="userAgent"      column="user_agent"    />
+	</resultMap>
+
+	<insert id="insertOperlog" parameterType="com.erp.system.domain.SysOperLog">
+		insert into sys_oper_log(title, business_type, method, request_method, operator_type, oper_name, dept_name,
+			oper_url, oper_ip, oper_location, oper_param, json_result, change_diff, status, error_msg, cost_time, oper_time, user_agent)
+		values (#{title}, #{businessType}, #{method}, #{requestMethod}, #{operatorType}, #{operName}, #{deptName},
+			#{operUrl}, #{operIp}, #{operLocation}, #{operParam}, #{jsonResult}, #{changeDiff}, #{status}, #{errorMsg}, #{costTime}, sysdate(), #{userAgent})
+	</insert>
+
+	<select id="selectOperLogList" parameterType="com.erp.system.domain.SysOperLog" resultMap="SysOperLogResult">
+		select oper_id, title, business_type, method, request_method, operator_type, oper_name, dept_name,
+			oper_url, oper_ip, oper_location, oper_param, json_result, change_diff, status, error_msg, cost_time, oper_time, user_agent
+		from sys_oper_log
+		<where>
+			<if test="title != null and title != ''">AND title like concat('%', #{title}, '%')</if>
+			<if test="businessType != null">AND business_type = #{businessType}</if>
+			<if test="businessTypes != null and businessTypes.size() > 0">
+				AND business_type in
+				<foreach collection="businessTypes" item="t" open="(" separator="," close=")">#{t}</foreach>
+			</if>
+			<if test="status != null">AND status = #{status}</if>
+			<if test="operName != null and operName != ''">AND oper_name like concat('%', #{operName}, '%')</if>
+			<if test="operIp != null and operIp != ''">AND oper_ip like concat('%', #{operIp}, '%')</if>
+			<if test="operTimeStart != null and operTimeStart != ''">AND oper_time &gt;= #{operTimeStart}</if>
+			<if test="operTimeEnd != null and operTimeEnd != ''">AND oper_time &lt;= #{operTimeEnd}</if>
+		</where>
+		order by oper_id desc
+	</select>
+
+	<select id="selectOperLogById" parameterType="Long" resultMap="SysOperLogResult">
+		select oper_id, title, business_type, method, request_method, operator_type, oper_name, dept_name,
+			oper_url, oper_ip, oper_location, oper_param, json_result, change_diff, status, error_msg, cost_time, oper_time, user_agent
+		from sys_oper_log where oper_id = #{operId}
+	</select>
+
+	<delete id="deleteOperLogByIds">
+		delete from sys_oper_log where oper_id in
+		<foreach collection="operIds" item="operId" open="(" separator="," close=")">#{operId}</foreach>
+	</delete>
+
+	<update id="cleanOperLog">
+		truncate table sys_oper_log
+	</update>
+
+	<delete id="cleanOperLogByDays">
+		delete from sys_oper_log where oper_time &lt; date_sub(sysdate(), interval #{days} day)
+	</delete>
+</mapper>

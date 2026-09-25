@@ -1,0 +1,63 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"lib": [
+			"DOM",
+			"DOM.Iterable",
+			"ESNext"
+		],
+		"allowJs": false,
+		"skipLibCheck": true,
+		"allowSyntheticDefaultImports": true,
+		"allowImportingTsExtensions": true,
+		/* Strict Type-Checking Options */
+		"strict": true /* Enable all strict type-checking options. */,
+		// "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
+		// "strictNullChecks": true,              /* Enable strict null checks. */
+		// "strictFunctionTypes": true,           /* Enable strict checking of function types. */
+		// "strictBindCallApply": true,           /* Enable strict 'bind', 'call', and 'apply' methods on functions. */
+		// "strictPropertyInitialization": true,  /* Enable strict checking of property initialization in classes. */
+		// "noImplicitThis": true,                /* Raise error on 'this' expressions with an implied 'any' type. */
+		// "alwaysStrict": true,                  /* Parse in strict mode and emit "use strict" for each source file. */
+		"forceConsistentCasingInFileNames": true,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true,
+		"jsx": "react-jsx",
+		/* 未使用的局部变量、参数在编辑器 Problems 中提示 */
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		/**
+		 * 仅加载列出的 @types，避免拉入损坏的 @types/minimatch（stub、main 为空会触发 TS2688）。
+		 * 其它类型由源码中的 import 或 /// <reference types="..." /> 引入（如 vite-env.d.ts 中的 vite/client）。
+		 */
+    "types": [
+      "node",
+      "react",
+      "react-dom"
+    ],
+		"baseUrl": "./",
+		"paths": {
+			"@": [
+				"src"
+			],
+			"@/*": [
+				"src/*"
+			]
+		}
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.d.ts",
+		"src/**/*.tsx",
+		"src/utils/menu.js"
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"**/*.js"
+	]
+}

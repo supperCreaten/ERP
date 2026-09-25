@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erp.system.mapper.SysLogininforMapper">
+
+	<resultMap type="com.erp.system.domain.SysLogininfor" id="SysLogininforResult">
+		<id     property="infoId"        column="info_id"           />
+		<result property="userName"      column="user_name"         />
+		<result property="status"        column="status"            />
+		<result property="ipaddr"        column="ipaddr"            />
+		<result property="loginLocation" column="login_location"    />
+		<result property="browser"       column="browser"           />
+		<result property="os"            column="os"                />
+		<result property="userAgent"     column="user_agent"        />
+		<result property="clientType"    column="client_type"       />
+		<result property="msg"           column="msg"               />
+		<result property="loginTime"     column="login_time"        />
+	</resultMap>
+
+	<insert id="insertLogininfor" parameterType="com.erp.system.domain.SysLogininfor">
+		insert into sys_login_log (user_name, status, ipaddr, login_location, browser, os, user_agent, client_type, msg, login_time)
+		values (#{userName}, #{status}, #{ipaddr}, #{loginLocation}, #{browser}, #{os}, #{userAgent},
+			<choose>
+				<when test="clientType != null and clientType != ''">#{clientType}</when>
+				<otherwise>'web'</otherwise>
+			</choose>,
+			#{msg}, sysdate())
+	</insert>
+	
+	<select id="selectLogininforList" parameterType="com.erp.system.domain.SysLogininfor" resultMap="SysLogininforResult">
+		select info_id, user_name, ipaddr, login_location, browser, os, user_agent, client_type, status, msg, login_time
+		from sys_login_log
+		<where>
+			<if test="ipaddr != null and ipaddr != ''">
+				AND ipaddr like concat('%', #{ipaddr}, '%')
+			</if>
+			<if test="status != null and status != ''">
+				AND status = #{status}
+			</if>
+			<if test="userName != null and userName != ''">
+				AND user_name like concat('%', #{userName}, '%')
+			</if>
+			<if test="clientType != null and clientType != ''">
+				AND client_type = #{clientType}
+			</if>
+			<if test="loginTimeStart != null and loginTimeStart != ''">
+				AND login_time &gt;= #{loginTimeStart}
+			</if>
+			<if test="loginTimeEnd != null and loginTimeEnd != ''">
+				AND login_time &lt;= #{loginTimeEnd}
+			</if>
+		</where>
+		order by info_id desc
+	</select>
+
+	<select id="selectLogininforById" parameterType="Long" resultMap="SysLogininforResult">
+		select info_id, user_name, ipaddr, login_location, browser, os, user_agent, client_type, status, msg, login_time
+		from sys_login_log where info_id = #{infoId}
+	</select>
+	
+	<delete id="deleteLogininforByIds">
+ 		delete from sys_login_log where info_id in
+ 		<foreach collection="infoIds" item="infoId" open="(" separator="," close=")">
+ 			#{infoId}
+        </foreach> 
+ 	</delete>
+    
+    <update id="cleanLogininfor">
+        truncate table sys_login_log
+    </update>
+
+	<delete id="cleanLogininforByDays">
+		delete from sys_login_log where login_time &lt; date_sub(sysdate(), interval #{days} day)
+	</delete>
+    
+</mapper>

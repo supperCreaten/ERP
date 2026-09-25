@@ -1,0 +1,60 @@
+/* 与 loading.ts 中 setupLoading 注入的样式一致，供 React 组件复用 */
+.app-loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.app-loading-screen__dots,
+.app-loading-screen__dots::before,
+.app-loading-screen__dots::after {
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  animation: app-loading-screen-loader 1.8s infinite ease-in-out;
+  animation-fill-mode: both;
+}
+
+.app-loading-screen__dots {
+  position: relative;
+  top: 0;
+  margin: 80px auto;
+  font-size: 10px;
+  text-indent: -9999em;
+  transform: translateZ(0);
+  animation-delay: -0.16s;
+}
+
+.app-loading-screen__dots::before,
+.app-loading-screen__dots::after {
+  position: absolute;
+  top: 0;
+  content: "";
+}
+
+.app-loading-screen__dots::before {
+  left: -3.5em;
+  animation-delay: -0.32s;
+}
+
+.app-loading-screen__dots::after {
+  left: 3.5em;
+}
+
+@keyframes app-loading-screen-loader {
+  0%,
+  80%,
+  100% {
+    box-shadow: 0 2.5em 0 -1.3em;
+  }
+
+  40% {
+    box-shadow: 0 2.5em 0 0;
+  }
+}

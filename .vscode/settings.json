@@ -1,0 +1,34 @@
+{
+  "editor.quickSuggestions": {
+    "other": "on",
+    "comments": "off",
+    "strings": "on"
+  },
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.parameterHints.enabled": true,
+  "editor.wordBasedSuggestions": "matchingDocuments",
+  "typescript.tsdk.path": "erp-web/node_modules/typescript/lib",
+  "typescript.tsdk.promptToUseWorkspaceVersion": true,
+  "eslint.enable": true,
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  },
+  "vue.format.wrapAttributes": "force-expand-multiline",
+  "html.format.wrapAttributes": "force-expand-multiline",
+  "html.format.wrapLineLength": 80,
+  "xml.validation.resolveExternalEntities": true,
+  "xml.downloadExternalResources.enabled": true,
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.maven.enabled": true
+}

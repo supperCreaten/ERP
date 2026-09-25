@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erp.system.mapper.SysDictMapper">
+
+	<resultMap type="com.erp.system.domain.dto.SysDictSaveReq" id="SysDictResult">
+		<id     property="dictId"         	column="dict_id"             />
+		<result property="dictName"      	column="dict_name"     />
+		<result property="dictCode"      	column="dict_code"     />
+		<result property="dictId"      	  	column="dict_id"    	  />
+		<result property="status"         	column="status"         />
+		<result property="remark"         	column="remark"         />
+		<result property="createBy"       	column="create_by"      />
+		<result property="createTime"     	column="create_time"    />
+		<result property="updateTime"     	column="update_time"    />
+		<result property="updateBy"       	column="update_by"      />
+	</resultMap>
+	<sql id="selectDictVo">
+        select * from sys_dict
+    </sql>
+
+    <select id="selectDictList" parameterType="com.erp.system.domain.dto.SysDictSaveReq" resultMap="SysDictResult">
+		<include refid="selectDictVo"/>
+		<where>
+			is_del = '0'
+			<if test="dictName != null and dictName != ''">
+				AND dict_name like concat('%', #{dictName}, '%')
+			</if>
+			<if test="dictCode != null and dictCode != ''">
+				AND hidden = #{visible}
+			</if>
+			<if test="status != null and status != ''">
+				AND status = #{status}
+			</if>
+		</where>
+		order by dict_id
+    </select>
+	<select id="selectDictAllList" resultMap="SysDictResult">
+		<include refid="selectDictVo"/>
+		where is_del = '0'
+		order by dict_id
+	</select>
+	<select id="selectDictById" resultMap="SysDictResult">
+		<include refid="selectDictVo"/>
+		where is_del = '0' and dict_id = #{id}
+	</select>
+	<select id="selectDictByCode" parameterType="com.erp.system.domain.dto.SysDictSaveReq" resultMap="SysDictResult">
+		<include refid="selectDictVo"/>
+		<where>
+			is_del = '0'
+			<if test="dictCode != null and dictCode != ''">
+				AND dict_Code = #{dictCode}
+			</if>
+		</where>
+	</select>
+	<insert id="insertDict" parameterType="com.erp.system.domain.dto.SysDictSaveReq" useGeneratedKeys="true"
+	        keyProperty="dictId"
+	        keyColumn="dict_id">
+		insert into sys_dict(
+		dict_name,
+		dict_code,
+		status,
+		is_del,
+		create_by,
+		update_by,
+		create_time,
+		update_time
+		)values(
+		<choose>
+			<when test="dictName != null and dictName != ''">#{dictName},</when>
+			<otherwise>'',</otherwise>
+		</choose>
+		<choose>
+			<when test="dictCode != null and dictCode != ''">#{dictCode},</when>
+			<otherwise>'',</otherwise>
+		</choose>
+		<choose>
+			<when test="status != null and status != ''">#{status},</when>
+			<otherwise>'0',</otherwise>
+		</choose>
+		'0',
+		<choose>
+			<when test="createBy != null and createBy != ''">#{createBy},</when>
+			<otherwise>'admin',</otherwise>
+		</choose>
+		<choose>
+			<when test="updateBy != null and updateBy != ''">#{updateBy},</when>
+			<otherwise>'admin',</otherwise>
+		</choose>
+		sysdate(),
+		sysdate()
+		)
+	</insert>
+	<update id="updateDict" parameterType="com.erp.system.domain.dto.SysDictSaveReq">
+		update sys_dict
+		<set>
+			<if test="dictName != null and dictName != ''">dict_name = #{dictName},</if>
+			<if test="dictCode != null and dictCode != ''">dict_code = #{dictCode},</if>
+			<if test="status != null">status = #{status},</if>
+			<if test="remark != null and remark !=''">remark = #{remark},</if>
+			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+			update_time = sysdate()
+		</set>
+		where dict_id = #{dictId}
+	</update>
+	<delete id="deleteDIctById" parameterType="Long">
+	    update sys_dict set is_del = '1', update_time = sysdate() where dict_id = #{id}
+	</delete>
+
+</mapper>
