@@ -28,6 +28,14 @@ public interface CustomerMapper {
     CustomerVO selectCustomerById(Long customerId);
 
     /**
+     * 根据客户名称（及省市）查询客户，用于唯一性校验
+     *
+     * @param query 查询条件
+     * @return 客户详情
+     */
+    CustomerVO selectCustomerByCustomerName(CustomerQueryDTO query);
+
+    /**
      * 新增客户
      *
      * @param customer 客户信息

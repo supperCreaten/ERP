@@ -2,7 +2,7 @@ package com.erp.common.core.controller;
 
 import java.beans.PropertyEditorSupport;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,12 +71,28 @@ public class BaseController {
 
     /**
      * 响应请求分页数据
+     * <pre>
+     * data: {
+     *   total, pageNum, pageSize, startRow, endRow, rows
+     * }
+     * </pre>
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected AjaxResult getDataTable(List<?> list) {
-        Map<String, Object> page = new HashMap<>(2);
-        page.put("total", new PageInfo(list).getTotal());
-        page.put("records", list);
+        return getDataTable(list, new PageInfo(list));
+    }
+
+    /**
+     * 响应请求分页数据（列表行与 PageInfo 分离，便于 VO 转换后仍保留分页元信息）
+     */
+    protected AjaxResult getDataTable(List<?> rows, PageInfo<?> pageInfo) {
+        Map<String, Object> page = new LinkedHashMap<>(8);
+        page.put("total", pageInfo.getTotal());
+        page.put("pageNum", pageInfo.getPageNum());
+        page.put("pageSize", pageInfo.getPageSize());
+        page.put("startRow", pageInfo.getStartRow());
+        page.put("endRow", pageInfo.getEndRow());
+        page.put("rows", rows);
         return AjaxResult.success(page);
     }
 

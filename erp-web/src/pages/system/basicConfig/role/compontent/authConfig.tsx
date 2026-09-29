@@ -52,11 +52,11 @@ export default function AuthConfig(props: { onClose: () => void }) {
     if (!state.roleId) return;
     try {
       const res = await api.getUserConfig({ roleId: state.roleId });
-      const page = (res?.data ?? res) as { records?: { userId: string | number }[] };
-      const records = Array.isArray(page?.records) ? page.records : Array.isArray(res?.data) ? (res.data as { userId: string | number }[]) : [];
+      const page = (res?.data ?? res) as { rows?: { userId: string | number }[] };
+      const rows = Array.isArray(page?.rows) ? page.rows : Array.isArray(res?.data) ? (res.data as { userId: string | number }[]) : [];
       dispatch({
         type: "SET_SELECTED_USER_KEYS",
-        selectedUserKeys: records.map((v) => String(v.userId)),
+        selectedUserKeys: rows.map((v) => String(v.userId)),
       });
     } catch {
       dispatch({ type: "SET_SELECTED_USER_KEYS", selectedUserKeys: [] });

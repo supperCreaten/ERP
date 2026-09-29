@@ -61,6 +61,8 @@ components.d.ts
 
 logs/
 
+uploadPath/
+
 /cypress/videos/
 /cypress/screenshots/
 

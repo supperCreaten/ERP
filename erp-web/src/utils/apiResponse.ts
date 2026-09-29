@@ -1,5 +1,11 @@
-/** 接口响应体：{ code, data, msg } 或直接返回业务数据 */
-export type ApiEnvelope<T = unknown> = { data?: T; code?: number; msg?: string };
+/** 接口响应体：{ code, success, msg, msgId, data } 或直接返回业务数据 */
+export type ApiEnvelope<T = unknown> = {
+  data?: T;
+  code?: number;
+  success?: boolean;
+  msg?: string;
+  msgId?: string;
+};
 
 /** 解包接口 data 字段；无 data 时返回 res 本身 */
 export function unwrapData<T>(res?: unknown): T {

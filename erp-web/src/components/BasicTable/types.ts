@@ -18,8 +18,13 @@ export type BasicTableHandle = {
 export type BasicTableResponseData =
   | AnyObject[]
   | {
-      records?: AnyObject[];
+      rows?: AnyObject[];
       total?: number | string;
+      pageNum?: number;
+      pageSize?: number;
+      startRow?: number;
+      endRow?: number;
+      sumColumn?: Record<string, unknown>;
       [key: string]: unknown;
     };
 

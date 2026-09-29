@@ -10,16 +10,24 @@ import java.util.List;
 public class CustomerQueryDTO extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /** 客户名称 */
+    /**
+     * 客户名称
+     */
     private String customerName;
 
-    /** 信用等级 */
+    /**
+     * 信用等级
+     */
     private String creditLevel;
 
-    /** 客户分类 */
+    /**
+     * 客户分类
+     */
     private String category;
 
-    /** 业务联系人 */
+    /**
+     * 业务联系人
+     */
     private String contactPerson;
     /**
      * 所属省/市

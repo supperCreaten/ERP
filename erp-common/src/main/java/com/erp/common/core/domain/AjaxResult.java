@@ -3,11 +3,22 @@ package com.erp.common.core.domain;
 import java.util.HashMap;
 import java.util.Objects;
 import com.erp.common.constant.HttpStatus;
-import com.erp.common.utils.StringUtils;
+import com.erp.common.utils.uuid.IdUtils;
 
 /**
  * 操作消息提醒
- * 
+ *
+ * 统一结构：
+ * <pre>
+ * {
+ *   "code": 200,
+ *   "success": true,
+ *   "msg": "操作成功",
+ *   "msgId": "...",
+ *   "data": ...
+ * }
+ * </pre>
+ *
  * @author finance
  */
 public class AjaxResult extends HashMap<String, Object>
@@ -17,8 +28,14 @@ public class AjaxResult extends HashMap<String, Object>
     /** 状态码 */
     public static final String CODE_TAG = "code";
 
+    /** 是否成功 */
+    public static final String SUCCESS_TAG = "success";
+
     /** 返回内容 */
     public static final String MSG_TAG = "msg";
+
+    /** 消息追踪 ID */
+    public static final String MSG_ID_TAG = "msgId";
 
     /** 数据对象 */
     public static final String DATA_TAG = "data";
@@ -32,36 +49,35 @@ public class AjaxResult extends HashMap<String, Object>
 
     /**
      * 初始化一个新创建的 AjaxResult 对象
-     * 
+     *
      * @param code 状态码
      * @param msg 返回内容
      */
     public AjaxResult(int code, String msg)
     {
-        super.put(CODE_TAG, code);
-        super.put(MSG_TAG, msg);
+        this(code, msg, null);
     }
 
     /**
      * 初始化一个新创建的 AjaxResult 对象
-     * 
+     *
      * @param code 状态码
      * @param msg 返回内容
-     * @param data 数据对象
+     * @param data 数据对象（新增/编辑等场景固定为 null）
      */
     public AjaxResult(int code, String msg, Object data)
     {
         super.put(CODE_TAG, code);
+        super.put(SUCCESS_TAG, HttpStatus.SUCCESS == code);
         super.put(MSG_TAG, msg);
-        if (StringUtils.isNotNull(data))
-        {
-            super.put(DATA_TAG, data);
-        }
+        super.put(MSG_ID_TAG, IdUtils.fastSimpleUUID());
+        // 始终输出 data，新增/编辑等为 null
+        super.put(DATA_TAG, data);
     }
 
     /**
      * 返回成功消息
-     * 
+     *
      * @return 成功消息
      */
     public static AjaxResult success()
@@ -71,7 +87,7 @@ public class AjaxResult extends HashMap<String, Object>
 
     /**
      * 返回成功数据
-     * 
+     *
      * @return 成功消息
      */
     public static AjaxResult success(Object data)
@@ -81,7 +97,7 @@ public class AjaxResult extends HashMap<String, Object>
 
     /**
      * 返回成功消息
-     * 
+     *
      * @param msg 返回内容
      * @return 成功消息
      */
@@ -92,7 +108,7 @@ public class AjaxResult extends HashMap<String, Object>
 
     /**
      * 返回成功消息
-     * 
+     *
      * @param msg 返回内容
      * @param data 数据对象
      * @return 成功消息
@@ -127,7 +143,7 @@ public class AjaxResult extends HashMap<String, Object>
 
     /**
      * 返回错误消息
-     * 
+     *
      * @return 错误消息
      */
     public static AjaxResult error()
@@ -137,7 +153,7 @@ public class AjaxResult extends HashMap<String, Object>
 
     /**
      * 返回错误消息
-     * 
+     *
      * @param msg 返回内容
      * @return 错误消息
      */
@@ -148,7 +164,7 @@ public class AjaxResult extends HashMap<String, Object>
 
     /**
      * 返回错误消息
-     * 
+     *
      * @param msg 返回内容
      * @param data 数据对象
      * @return 错误消息
@@ -160,7 +176,7 @@ public class AjaxResult extends HashMap<String, Object>
 
     /**
      * 返回错误消息
-     * 
+     *
      * @param code 状态码
      * @param msg 返回内容
      * @return 错误消息

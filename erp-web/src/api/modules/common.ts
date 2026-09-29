@@ -1,3 +1,4 @@
+import type { AxiosRequestConfig } from "axios";
 import request from "@/utils/request";
 
 export default {
@@ -8,5 +9,5 @@ export default {
   logout: () => request.post("/api/logout"),
   changePassword: (data: Record<string, unknown>) => request.post("/api/user/changePassword", data),
   decryptSensitive: (data: { cipherText: string; secretKey: string }) => request.post("/api/decryptSensitive", data),
-  uploadApi: (data: FormData) => request.post("/api/upload", data),
+  uploadApi: (data: FormData, config?: AxiosRequestConfig) => request.post("/api/upload", data, config),
 };

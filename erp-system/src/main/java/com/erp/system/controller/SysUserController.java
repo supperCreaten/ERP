@@ -1,8 +1,6 @@
 package com.erp.system.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,11 +50,8 @@ public class SysUserController extends BaseController
         startPage();
         List<SysUser> list = userService.selectUserList(user == null ? new SysUser() : user);
         PageInfo<SysUser> pageInfo = new PageInfo<>(list);
-        List<SysUserPageVo> records = list.stream().map(SysUserPageVo::from).collect(Collectors.toList());
-        Map<String, Object> page = new HashMap<>(2);
-        page.put("total", pageInfo.getTotal());
-        page.put("records", records);
-        return AjaxResult.success(page);
+        List<SysUserPageVo> rows = list.stream().map(SysUserPageVo::from).collect(Collectors.toList());
+        return getDataTable(rows, pageInfo);
     }
 
     /** 用户详情 */

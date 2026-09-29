@@ -2,7 +2,6 @@ package com.erp.system.domain.vo;
 
 import com.erp.common.core.domain.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
 
 import java.util.Date;
 import java.util.List;
@@ -13,60 +12,96 @@ import java.util.List;
 public class CustomerVO extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /** 客户ID */
+    /**
+     * 客户ID
+     */
     private Long customerId;
 
-    /** 客户名称 */
+    /**
+     * 客户名称
+     */
     private String customerName;
 
-    /** 简称 */
+    /**
+     * 简称
+     */
     private String shortName;
     /**
      * 所属省/市
      */
 
     private List<String> region;
-    /** 省 */
+    /**
+     * 省
+     */
 
     private String province;
 
-    /** 市 */
+    /**
+     * 市
+     */
 
     private String city;
 
-    /** 公司地址 */
+    /**
+     * 公司地址
+     */
     private String address;
 
 
-    /** 电话 */
+    /**
+     * 电话
+     */
     private String phone;
 
-    /** 信用等级 */
+    /**
+     * 信用等级
+     */
     private String creditLevel;
-
-    /** 客户分类 */
+    /**
+     * 信用等级(中文)
+     */
+    private String creditLevelText;
+    /**
+     * 客户分类
+     */
     private String category;
-
-    /** 开户行 */
+    /**
+     * 客户分类(中文)
+     */
+    private String categoryText;
+    /**
+     * 开户行
+     */
     private String bankName;
     /**
      * 开户地址
      */
     private String invoiceAddress;
 
-    /** 银行账号 */
+    /**
+     * 银行账号
+     */
     private String bankAccount;
 
-    /** 税号 */
+    /**
+     * 税号
+     */
     private String taxNumber;
 
-    /** 业务联系人 */
+    /**
+     * 业务联系人
+     */
     private String contactPerson;
 
-    /** 联系电话 */
+    /**
+     * 联系电话
+     */
     private String contactPhone;
 
-    /** 删除标志（0正常 1删除） */
+    /**
+     * 删除标志（0正常 1删除）
+     */
     private String isDel;
 
     @Override
@@ -217,5 +252,21 @@ public class CustomerVO extends BaseEntity {
 
     public void setInvoiceAddress(String invoiceAddress) {
         this.invoiceAddress = invoiceAddress;
+    }
+
+    public String getCategoryText() {
+        return categoryText;
+    }
+
+    public void setCategoryText(String categoryText) {
+        this.categoryText = categoryText;
+    }
+
+    public String getCreditLevelText() {
+        return creditLevelText;
+    }
+
+    public void setCreditLevelText(String creditLevelText) {
+        this.creditLevelText = creditLevelText;
     }
 }

@@ -8,12 +8,16 @@ import TableSection from "@/components/TableSection"
 import { FormConfig } from "@/interface"
 import { createAuditColumns } from "@/utils/auditColumns"
 import { DeleteFilled, ExportOutlined, ImportOutlined, PlusOutlined } from "@ant-design/icons"
-import { Input, TableColumnsType } from "antd"
+import { Cascader, Input, Select, TableColumnsType } from "antd"
 import CreateCustomer from "./createCustomer/createCustomer"
 import { modal } from "@/utils/static-antd"
 import api from "@/api"
 import { showMessage } from "@/utils/methods"
 import { TableRowSelection } from "antd/es/table/interface"
+import ImportFile, { type ImportResult } from "@/components/ImportFile"
+import useDict from "@/hooks/use-dict"
+import { CUSTOMER_DICT_CODE } from "./constants"
+import { pcTextArr } from "element-china-area-data"
 interface CustomerTableData {
   customerId: string
   customerName: string
@@ -31,14 +35,26 @@ export default function SalesCustomer() {
   const { searchRef, onTableReady, onSearch, refreshTable } = useBasicTable()
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [openInfo, setOpenInfo] = useState<{ open: boolean; customerId: string }>({ open: false, customerId: "" })
+  const [visible, setVisible] = useState<boolean>(false)
+  const dict = useDict([CUSTOMER_DICT_CODE.CREDIT_LEVEL, CUSTOMER_DICT_CODE.CATEGORY])
+  const creditLevelOptions = dict[CUSTOMER_DICT_CODE.CREDIT_LEVEL] ?? []
+  const categoryOptions = dict[CUSTOMER_DICT_CODE.CATEGORY] ?? []
   const formConfig: FormConfig[] = [
+    {
+      formItemProps: { label: "省市", name: "region", },
+      component: <Cascader placeholder="请选择省市" allowClear options={pcTextArr}/>,
+    },
     {
       formItemProps: { label: "客户名称", name: "customerName", type: "text" },
       component: <Input placeholder="请输入客户名称" allowClear />,
     },
     {
-      formItemProps: { label: "联系人", name: "contactPerson", type: "text" },
-      component: <Input placeholder="请输入联系人" allowClear />,
+      formItemProps: { label: "信用等级", name: "creditLevel" },
+      component: <Select placeholder="请选择信用等级" allowClear options={creditLevelOptions}/>,
+    },
+    {
+      formItemProps: { label: "客户分类", name: "category" },
+      component: <Select placeholder="请选择客户分类" allowClear options={categoryOptions}/>,
     },
   ]
   const columns: TableColumnsType<CustomerTableData> = [
@@ -61,6 +77,22 @@ export default function SalesCustomer() {
       title: "客户简称",
       key: "shortName",
       dataIndex: "shortName",
+      width: 120,
+      align: "center",
+      ellipsis: true,
+    },
+    {
+      title: "信用等级",
+      key: "creditLevelText",
+      dataIndex: "creditLevelText",
+      width: 120,
+      align: "center",
+      ellipsis: true,
+    },
+    {
+      title: "客户分类",
+      key: "categoryText",
+      dataIndex: "categoryText",
       width: 120,
       align: "center",
       ellipsis: true,
@@ -149,10 +181,42 @@ export default function SalesCustomer() {
   const onClose = () => {
     setOpenInfo({ open: false, customerId: "" })
   }
+  const downloadBlobFile = (blob: Blob, fileName: string) => {
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = fileName
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+  const handleImport = async (
+    file: File,
+    options: { partialCommit: boolean; onProgress?: (percent: number) => void },
+  ): Promise<ImportResult | void> => {
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("partialCommit", String(options.partialCommit))
+    return (await api.importCustomer(formData, {
+      onUploadProgress: (event) => {
+        if (!event.total) return
+        options.onProgress?.(Math.round((event.loaded / event.total) * 100))
+      },
+    })) as ImportResult | void
+  }
+  const handleDownloadTemplate = async () => {
+    const blob = (await api.downloadCustomerImportTemplate()) as Blob
+    downloadBlobFile(blob, "客户导入模板.xlsx")
+  }
+  const handleExport = async () => {
+    const params = searchRef.current?.getFieldsValue(true) || {}
+    const blob = (await api.exportCustomer(params)) as Blob
+    downloadBlobFile(blob, "客户资料.xlsx")
+  }
   return (
     <TableSection>
       <TableSection.Header>
         <SearchBoxForward
+          ref={searchRef}
           formConfig={formConfig}
           onSearch={() => {
             setSelectedRowKeys([])
@@ -193,6 +257,7 @@ export default function SalesCustomer() {
               color="orange"
               variant="solid"
               icon={<ImportOutlined />}
+              onClick={() => setVisible(true)}
             />
             <BasicButton
               type="primary"
@@ -200,11 +265,21 @@ export default function SalesCustomer() {
               color="purple"
               variant="solid"
               icon={<ExportOutlined />}
+              onClick={() => void handleExport()}
             />
           </BasicTable.ToolbarRight>
         </BasicTable>
       </TableSection.Content>
       {openInfo.open && <CreateCustomer openInfo={openInfo} onClose={onClose} onSuccess={refreshTable} />}
+      {visible && (
+        <ImportFile
+          open={visible}
+          onClose={() => setVisible(false)}
+          onImport={handleImport}
+          onDownloadTemplate={handleDownloadTemplate}
+          onSuccess={refreshTable}
+        />
+      )}
     </TableSection>
   )
 }

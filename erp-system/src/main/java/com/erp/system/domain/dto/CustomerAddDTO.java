@@ -214,7 +214,7 @@ public class CustomerAddDTO extends BaseEntity {
         this.city = city;
     }
 
-    public List<String>  getRegion() {
+    public List<String> getRegion() {
         return region;
     }
 

@@ -11,6 +11,8 @@ import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.erp.common.constant.HttpStatus;
 import com.erp.common.core.domain.AjaxResult;
 import com.erp.common.core.text.Convert;
@@ -50,6 +52,28 @@ public class GlobalExceptionHandler
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',不支持'{}'请求", requestURI, e.getMethod());
         return AjaxResult.error(e.getMessage());
+    }
+
+    /**
+     * 接口不存在（无匹配 Controller，落到静态资源后未找到）
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public AjaxResult handleNoResourceFoundException(NoResourceFoundException e, HttpServletRequest request)
+    {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',接口不存在.", requestURI);
+        return AjaxResult.error(HttpStatus.NOT_FOUND, StringUtils.format("请求访问：{}，接口不存在", requestURI));
+    }
+
+    /**
+     * 接口不存在（开启 throw-exception-if-no-handler-found 时）
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public AjaxResult handleNoHandlerFoundException(NoHandlerFoundException e, HttpServletRequest request)
+    {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',接口不存在.", requestURI);
+        return AjaxResult.error(HttpStatus.NOT_FOUND, StringUtils.format("请求访问：{}，接口不存在", requestURI));
     }
 
     /**

@@ -56,10 +56,10 @@ export function useBasicTableData({ callback, onGetParams, isShowPage, reloadKey
       try {
         const payload = await callbackRef.current(params);
         if (requestId !== requestIdRef.current) return;
-        const { records, total } = parseTableResponse(payload);
+        const { rows, total } = parseTableResponse(payload);
         dispatch({
           type: "SET_TABLE_DATA",
-          tableData: records,
+          tableData: rows,
           total,
           ...(options?.currentPage !== undefined ? { currentPage: options.currentPage } : {}),
         });
