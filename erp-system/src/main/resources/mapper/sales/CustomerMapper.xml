@@ -28,10 +28,15 @@
     </resultMap>
 
     <sql id="selectCustomerVo">
-        select c.customer_id, c.customer_name, c.short_name, c.province,city, c.address,c.invoice_address,
-        c.credit_level, c.category, c.bank_name, c.bank_account, c.tax_number,
-        c.contact_person, c.contact_phone, c.is_del, c.create_by, c.create_time, c.update_by, c.update_time, c.remark,d2.dict_label as categoryText , d1.dict_label as creditLevelText
-        from biz_customer c left join sys_dict_data d1 on c.credit_level = d1.dict_value left join sys_dict_data d2 on c.category = d2.dict_value
+        select c.customer_id, c.customer_name, c.short_name, c.province, c.city, c.address, c.invoice_address,
+               c.credit_level, c.category, c.bank_name, c.bank_account, c.tax_number,
+               c.contact_person, c.contact_phone, c.is_del, c.create_by, c.create_time, c.update_by, c.update_time, c.remark,
+               d1.dict_label as creditLevelText, d2.dict_label as categoryText
+        from biz_customer c
+        left join sys_dict sd1 on sd1.dict_code = 'customer_credit_level' and sd1.is_del = '0'
+        left join sys_dict_data d1 on d1.dict_id = sd1.dict_id and d1.dict_value = c.credit_level and d1.is_del = '0'
+        left join sys_dict sd2 on sd2.dict_code = 'customer_category' and sd2.is_del = '0'
+        left join sys_dict_data d2 on d2.dict_id = sd2.dict_id and d2.dict_value = c.category and d2.is_del = '0'
     </sql>
 
     <select id="selectCustomerList" parameterType="com.erp.system.domain.dto.CustomerQueryDTO" resultMap="CustomerResult">
@@ -54,9 +59,8 @@
             <if test="city != null and city != ''">
                 AND c.city = #{city}
             </if>
-            and d1.is_del = '0' and d2.is_del = '0'
         </where>
-        order by customer_id desc
+        order by c.customer_id desc
     </select>
 
     <select id="selectCustomerById" parameterType="Long" resultMap="CustomerResult">

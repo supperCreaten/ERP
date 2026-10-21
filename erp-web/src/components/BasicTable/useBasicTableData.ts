@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import type { TablePaginationConfig, TableProps } from "antd";
+import type { AnyObject } from "antd/es/_util/type";
 import { useTableReducer } from "@/hooks/use-table";
 import { getParams } from "@/utils/methods";
 import { isCanceledError } from "@/utils/ajaxRequestControl";
@@ -7,18 +8,27 @@ import type { BasicTableCallback, BasicTableHandle } from "./types";
 import { parseTableResponse } from "./utils";
 import { GetRowKey } from "antd/es/table/interface";
 
-type UseBasicTableDataOptions = {
+type UseBasicTableDataOptions<T extends AnyObject = AnyObject> = {
   callback?: BasicTableCallback;
   onGetParams: () => Record<string, unknown>;
   isShowPage: boolean;
   reloadKey?: number | string;
-  rowKey?: string | GetRowKey<any>;
+  rowKey?: string | GetRowKey<T>;
   isRequest?: boolean;
-  onTableReady?: (api: BasicTableHandle) => void;
-  ref: React.ForwardedRef<BasicTableHandle>;
+  onTableReady?: (api: BasicTableHandle<T>) => void;
+  ref: React.ForwardedRef<BasicTableHandle<T>>;
 };
 
-export function useBasicTableData({ callback, onGetParams, isShowPage, reloadKey, rowKey = "id", onTableReady, ref, isRequest = true }: UseBasicTableDataOptions) {
+export function useBasicTableData<T extends AnyObject = AnyObject>({
+  callback,
+  onGetParams,
+  isShowPage,
+  reloadKey,
+  rowKey = "id",
+  onTableReady,
+  ref,
+  isRequest = true,
+}: UseBasicTableDataOptions<T>) {
   const { state, dispatch } = useTableReducer();
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -34,9 +44,9 @@ export function useBasicTableData({ callback, onGetParams, isShowPage, reloadKey
   /** 丢弃过期响应，避免连点查询时旧请求覆盖新数据 */
   const requestIdRef = useRef(0);
 
-  const apiRef = useRef<BasicTableHandle>({
+  const apiRef = useRef<BasicTableHandle<T>>({
     getTableData: async () => {},
-    getTableRecords: () => {},
+    getTableRecords: () => [],
     setTableData: () => {},
     addTableRow: () => {},
     searchRefresh: async () => {},
@@ -74,18 +84,18 @@ export function useBasicTableData({ callback, onGetParams, isShowPage, reloadKey
     },
     [dispatch, isShowPage],
   );
-  const setTableData = (next: any[] | ((prev: any[]) => any[])) => {
-    const prev = stateRef.current.tableData ?? [];
+  const setTableData = (next: T[] | ((prev: T[]) => T[])) => {
+    const prev = (stateRef.current.tableData ?? []) as T[];
     const tableData = typeof next === "function" ? next(prev) : next;
     dispatch({
       type: "SET_TABLE_RECORDS",
       tableData,
     });
   };
-  const addTableRow = (item: any = {}) => {
+  const addTableRow = (item: T) => {
     setTableData((prev) => [...prev, item]);
   };
-  const getTableRecords = () => state.tableData;
+  const getTableRecords = (): T[] => (state.tableData ?? []) as T[];
   const searchRefresh = useCallback(async () => {
     if (!isShowPage) {
       await fetchTableData();
@@ -96,7 +106,7 @@ export function useBasicTableData({ callback, onGetParams, isShowPage, reloadKey
   }, [fetchTableData, isShowPage]);
 
   const patchRow = useCallback(
-    (key: string | number, patch: Record<string, unknown>) => {
+    (key: string | number, patch: Partial<T> & AnyObject) => {
       dispatch({ type: "PATCH_ROW", rowKey: key, rowKeyField, patch });
     },
     [dispatch, rowKeyField],

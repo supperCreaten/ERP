@@ -2,13 +2,14 @@ import type { MenuProps } from "antd"
 import type { MenuItemType } from "@/interface"
 import { cn } from "@/utils/methods"
 import { Menu } from "antd"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState, type MouseEvent } from "react"
 import { useLocation } from "react-router-dom"
 import { useStyles } from "./style"
 import useMenu from "@/hooks/use-menu"
 import { useDeviceType } from "@/hooks/use-device-type"
 import { usePreferences } from "@/hooks/use-preferences"
 import { getParentKeys } from "@/utils/menu"
+import { prefetchPageByPath } from "@/router/utils/generate-routes-from-backend"
 
 interface LayoutMenuProps {
   mode?: MenuProps["mode"]
@@ -92,37 +93,51 @@ export default function LayoutMenu({
 
   const handleMenuClick = useCallback<NonNullable<MenuProps["onClick"]>>(
     ({ key }) => {
+      prefetchPageByPath(key)
       handleMenuSelect?.(key, mode)
     },
     [handleMenuSelect, mode],
   )
 
+  /** 悬停菜单项时预取页面 chunk，缩短点击后的等待 */
+  const handleMenuMouseOver = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    const target = (event.target as HTMLElement | null)?.closest?.("[data-menu-id]")
+    if (!(target instanceof HTMLElement)) return
+    const menuId = target.getAttribute("data-menu-id")
+    if (!menuId) return
+    const slashIndex = menuId.indexOf("/")
+    if (slashIndex < 0) return
+    prefetchPageByPath(menuId.slice(slashIndex))
+  }, [])
+
   return (
-    <Menu
-      theme={menuTheme}
-      /**
-       * min-w-0 flex-auto 解决在 Flex 布局中，Menu 没有按照预期响应式省略菜单
-       * @see https://ant-design.antgroup.com/components/menu#why-menu-do-not-responsive-collapse-in-flex-layout
-       */
-      className={cn("app-layout-menu border-none! min-h-full min-w-0 flex-auto", {
+    <div className="h-full min-h-0" onMouseOver={handleMenuMouseOver}>
+      <Menu
+        theme={menuTheme}
         /**
-         * @zh 当侧边菜单折叠时，添加背景色
-         * @en When the side menu is collapsed, add background color
+         * min-w-0 flex-auto 解决在 Flex 布局中，Menu 没有按照预期响应式省略菜单
+         * @see https://ant-design.antgroup.com/components/menu#why-menu-do-not-responsive-collapse-in-flex-layout
          */
-        [classes.menuBackgroundColor]: sidebarCollapsed,
-      })}
-      inlineIndent={16}
-      style={{ height: isMobile ? "100%" : "initial" }}
-      mode={mode}
-      items={menus as MenuProps["items"]}
-      {...menuInlineCollapsedProp}
-      {...menuOpenProps}
-      selectedKeys={getSelectedKeys}
-      /**
-       * 使用 onClick 替代 onSelect：父路由激活子页面时仍可点父级跳转；且 onSelect 内部同步更重，易触发 long click handler。
-       * @see https://github.com/user-attachments/assets/cf67a973-f210-45e4-8278-08727ab1b8ce
-       */
-      onClick={handleMenuClick}
-    />
+        className={cn("app-layout-menu border-none! min-h-full min-w-0 flex-auto", {
+          /**
+           * @zh 当侧边菜单折叠时，添加背景色
+           * @en When the side menu is collapsed, add background color
+           */
+          [classes.menuBackgroundColor]: sidebarCollapsed,
+        })}
+        inlineIndent={16}
+        style={{ height: isMobile ? "100%" : "initial" }}
+        mode={mode}
+        items={menus as MenuProps["items"]}
+        {...menuInlineCollapsedProp}
+        {...menuOpenProps}
+        selectedKeys={getSelectedKeys}
+        /**
+         * 使用 onClick 替代 onSelect：父路由激活子页面时仍可点父级跳转；且 onSelect 内部同步更重，易触发 long click handler。
+         * @see https://github.com/user-attachments/assets/cf67a973-f210-45e4-8278-08727ab1b8ce
+         */
+        onClick={handleMenuClick}
+      />
+    </div>
   )
 }

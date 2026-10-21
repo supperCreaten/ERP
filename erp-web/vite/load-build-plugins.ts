@@ -30,5 +30,13 @@ export async function loadBuildOnlyPlugins(): Promise<Plugin[]> {
         memLevel: 9,
       },
     }),
+    viteCompression({
+      algorithm: "brotliCompress",
+      ext: ".br",
+      deleteOriginFile: false,
+      threshold: 1024 * 10,
+      verbose: true,
+      disable: false,
+    }),
   ];
 }

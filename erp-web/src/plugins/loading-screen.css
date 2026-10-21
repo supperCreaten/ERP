@@ -1,4 +1,4 @@
-/* 与 loading.ts 中 setupLoading 注入的样式一致，供 React 组件复用 */
+/* 与 index.html / setupLoading 首屏样式一致，供 React 组件复用 */
 .app-loading-screen {
   position: fixed;
   inset: 0;
@@ -8,6 +8,7 @@
   justify-content: center;
   height: 100vh;
   width: 100vw;
+  background-color: #fff;
   overflow: hidden;
 }
 

@@ -11,7 +11,7 @@ export type AntButtonProps = ButtonProps & {
   isLoading?: boolean;
 };
 
-export function AntButton({
+export function BasicButton({
   isLoading = false,
   title,
   type,
@@ -42,4 +42,4 @@ export function AntButton({
   );
 }
 
-export default AntButton;
+export default BasicButton;

@@ -1,5 +1,6 @@
 package com.erp.system.service.impl;
 
+import com.erp.common.core.redis.RedisCache;
 import com.erp.common.exception.ServiceException;
 import com.erp.common.utils.StringUtils;
 import com.erp.common.utils.bean.BeanUtils;
@@ -34,6 +35,9 @@ public class SalesCustomerServiceImpl implements SalesCustomerService {
 
     @Autowired
     private SysDictService dictService;
+
+    @Autowired
+    private RedisCache redisCache;
 
     /**
      * 校验并拆分省市区字段
@@ -87,7 +91,13 @@ public class SalesCustomerServiceImpl implements SalesCustomerService {
             customerQueryDTO.setProvince(region.get(0));
             customerQueryDTO.setCity(region.get(1));
         }
-        return customerMapper.selectCustomerList(customerQueryDTO);
+        if (redisCache.hasKey("api:/customer/pageQuery")) {
+            return redisCache.getCacheList("api:/customer/pageQuery");
+        }
+        List<CustomerVO> customerVOList = customerMapper.selectCustomerList(customerQueryDTO);
+        redisCache.setCacheList("api:/customer/pageQuery", customerVOList);
+        redisCache.expire("api:/customer/pageQuery", 60 * 5);
+        return customerVOList;
     }
 
     /**
@@ -99,6 +109,7 @@ public class SalesCustomerServiceImpl implements SalesCustomerService {
     public void insertSalesCustomer(CustomerAddDTO customerAddDTO) {
         checkRegionNotEmpty(customerAddDTO);
         checkCustomerNameUnique(customerAddDTO);
+        redisCache.deleteObject("api:/customer/pageQuery");
         customerMapper.insertCustomer(customerAddDTO);
     }
 
@@ -114,6 +125,8 @@ public class SalesCustomerServiceImpl implements SalesCustomerService {
         }
         checkRegionNotEmpty(customerAddDTO);
         checkCustomerNameUnique(customerAddDTO);
+        redisCache.deleteObject("api:/customer/pageQuery");
+        redisCache.deleteObject("api:/customer/queryById");
         customerMapper.updateCustomer(customerAddDTO);
     }
 
@@ -137,6 +150,11 @@ public class SalesCustomerServiceImpl implements SalesCustomerService {
         region.add(city);
         records.setRegion(region);
         BeanUtils.copyBeanProp(target, records);
+        if (redisCache.hasKey("api:/customer/queryById")) {
+            return redisCache.getCacheObject("api:/customer/queryById");
+        }
+        redisCache.setCacheObject("api:/customer/queryById", target);
+        redisCache.expire("api:/customer/queryById", 60 * 5);
         return target;
     }
 
@@ -150,6 +168,8 @@ public class SalesCustomerServiceImpl implements SalesCustomerService {
         if (customerIds == null || customerIds.length == 0) {
             throw new ServiceException("主键id不能为空");
         }
+        redisCache.deleteObject("api:/customer/pageQuery");
+        redisCache.deleteObject("api:/customer/queryById");
         customerMapper.deleteCustomerByIds(customerIds);
     }
 
@@ -232,6 +252,7 @@ public class SalesCustomerServiceImpl implements SalesCustomerService {
             String message = String.format("成功导入 %d 条，失败 %d 条，请下载错误文件查看", successCount, errors.size());
             return buildImportResult(true, errors.size(), successCount, result, message);
         }
+        redisCache.deleteObject("api:/customer/pageQuery");
         return buildImportResult(false, 0, successCount, result, "成功导入 " + successCount + " 条");
     }
 

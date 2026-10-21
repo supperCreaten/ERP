@@ -32,7 +32,7 @@ interface CustomerTableData {
   status: number
 }
 export default function SalesCustomer() {
-  const { searchRef, onTableReady, onSearch, refreshTable } = useBasicTable()
+  const { searchRef, onTableReady, onSearch, refreshTable } = useBasicTable<CustomerTableData>()
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [openInfo, setOpenInfo] = useState<{ open: boolean; customerId: string }>({ open: false, customerId: "" })
   const [visible, setVisible] = useState<boolean>(false)

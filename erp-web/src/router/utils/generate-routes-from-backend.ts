@@ -10,6 +10,9 @@ const ExceptionUnknownComponent = lazy(() => import("@/pages/notFound/index.tsx"
  * @en Async load page components
  */
 const pageModules = import.meta.glob(["/src/pages/**/*.tsx"]);
+
+const prefetchingPaths = new Set<string>();
+
 /**
  * @zh 根据路由获取组件路径
  * @en Get component path based on route
@@ -17,6 +20,28 @@ const pageModules = import.meta.glob(["/src/pages/**/*.tsx"]);
 export function getComponentPathByRoute(route: AppRouteRecordRaw & { component?: string }) {
   if (route.component) return `/src/pages${route.component}.tsx`;
   return `/src/pages${route.path}/index.tsx`;
+}
+
+/**
+ * 预取页面模块（菜单悬停/展开时调用），点击时直接命中缓存，减少白屏等待。
+ */
+export function prefetchPageByPath(path?: string | null) {
+  if (!path || /https?:/.test(path)) return;
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  const candidates = [
+    `/src/pages${normalized}/index.tsx`,
+    `/src/pages${normalized}.tsx`,
+  ];
+  for (const componentPath of candidates) {
+    if (prefetchingPaths.has(componentPath)) return;
+    const loader = pageModules[componentPath] as (() => Promise<unknown>) | undefined;
+    if (!loader) continue;
+    prefetchingPaths.add(componentPath);
+    void loader().catch(() => {
+      prefetchingPaths.delete(componentPath);
+    });
+    return;
+  }
 }
 /**
  * @zh 动态加载并设置路由组件

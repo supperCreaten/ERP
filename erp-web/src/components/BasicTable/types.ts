@@ -3,15 +3,15 @@ import type { AnyObject } from "antd/es/_util/type";
 import type { GetRowKey } from "antd/es/table/interface";
 
 /** ref / onTableReady 暴露的表格 API */
-export type BasicTableHandle = {
+export type BasicTableHandle<T extends AnyObject = AnyObject> = {
   getTableData: () => Promise<void>;
-  setTableData: (data: Array<Record<string, unknown>>) => void;
-  addTableRow: (row: Record<string, unknown>) => void;
-  getTableRecords: () => void;
+  setTableData: (data: T[]) => void;
+  addTableRow: (row: T) => void;
+  getTableRecords: () => T[];
   /** 查询时重置到第 1 页再请求 */
   searchRefresh?: () => Promise<void>;
   /** 按 rowKey 合并更新当前页某一行（如缓存解密明文） */
-  patchRow?: (rowKey: string | number, patch: AnyObject) => void;
+  patchRow?: (rowKey: string | number, patch: Partial<T> & AnyObject) => void;
 };
 
 /** 列表接口经 request 拦截器解包后的 data：分页对象或直接数组 */
@@ -47,6 +47,6 @@ export type BasicTableProps<T extends AnyObject = AnyObject> = {
   rowKey?: string | keyof T | GetRowKey<T>;
   isRequest?: boolean;
   /** 挂载后注册刷新方法（无需 ref / useImperativeHandle） */
-  onTableReady?: (api: BasicTableHandle) => void;
+  onTableReady?: (api: BasicTableHandle<T>) => void;
   rowSelection?: TableProps<T>["rowSelection"];
 };

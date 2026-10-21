@@ -1,5 +1,5 @@
 import type { RootState } from "@/store";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { hideLoading } from "./hide-loading";
 import "./loading-screen.css";
@@ -16,8 +16,8 @@ export default function LoadingScreen() {
   }, []);
 
   return (
-    <div className="app-loading-screen" style={{ backgroundColor: "transparent" }}>
-      <div className="app-loading-screen__dots" style={{ color: themeColorPrimary }} />
+    <div className="app-loading-screen">
+      <div className="app-loading-screen__dots" style={{ color: themeColorPrimary || "#1677ff" }} />
     </div>
   );
 }

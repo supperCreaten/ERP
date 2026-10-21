@@ -1,20 +1,15 @@
-import store from "@/store";
-import type { RootState } from "@/store";
-
 export const loadingId = "loading-e8a3a985";
 export const loadingContainerId = "loading-container-e8a3a985";
 
 /**
- * Preview loading page.
- * https://github.com/user-attachments/assets/110701a8-2cf4-4e5f-a07e-b832da4e1586
+ * 首屏 loading 已内联在 index.html；此处仅作兜底（例如 HTML 被改坏时）。
+ * 切勿依赖 store：setupLoading 应尽早可调用，避免拉长白屏窗口。
  */
 export function setupLoading() {
-  const state = store.getState() as RootState;
-  /**
-   * @see https://github.com/pure-admin/vue-pure-admin/blob/cd21f1e050011d8f761094bf8a1e110fb8a33959/index.html#L20-L81
-   * This CSS code from https://github.com/pure-admin/vue-pure-admin
-   * @author pure-admin
-   */
+  if (document.getElementById(loadingContainerId)) {
+    return;
+  }
+
   const loading = `
 <style>
 #${loadingContainerId} {
@@ -26,7 +21,7 @@ export function setupLoading() {
 	justify-content: center;
 	height: 100vh;
 	width: 100vw;
-	background-color: transparent;
+	background-color: #fff;
 	overflow: hidden;
 }
 #${loadingId},
@@ -44,7 +39,7 @@ export function setupLoading() {
 	top: 0;
 	margin: 80px auto;
 	font-size: 10px;
-	color: ${state.preferences.themeColorPrimary};
+	color: #1677ff;
 	text-indent: -9999em;
 	transform: translateZ(0);
 	transform: translate(-50%, 0);
@@ -79,18 +74,16 @@ export function setupLoading() {
 	}
 }
 </style>
-<div id="${loadingId}"></div>
+<div id="${loadingId}">Loading</div>
 `;
-  const loadingContainerElement = document.getElementById(loadingContainerId);
-  if (!loadingContainerElement) {
-    const loadingDiv = document.createElement("div");
-    loadingDiv.id = loadingContainerId;
-    loadingDiv.innerHTML = `<!-- A loading animation displayed before code loads, driven by setupLoading function -->${loading}`;
+  const loadingDiv = document.createElement("div");
+  loadingDiv.id = loadingContainerId;
+  loadingDiv.setAttribute("aria-busy", "true");
+  loadingDiv.setAttribute("aria-live", "polite");
+  loadingDiv.innerHTML = loading;
 
-    const app = document.getElementById("root");
-
-    if (app) {
-      app.before(loadingDiv);
-    }
+  const app = document.getElementById("root");
+  if (app) {
+    app.before(loadingDiv);
   }
 }

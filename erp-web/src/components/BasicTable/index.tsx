@@ -13,7 +13,10 @@ export type { BasicTableHandle, BasicTableProps } from "./types";
 export { BasicTableToolbarLeft, BasicTableToolbarRight };
 export { useBasicTable } from "./useBasicTable";
 
-function BasicTableInner<T extends AnyObject = AnyObject>(props: BasicTableProps<T>, ref: React.ForwardedRef<BasicTableHandle>) {
+function BasicTableInner<T extends AnyObject = AnyObject>(
+  props: BasicTableProps<T>,
+  ref: React.ForwardedRef<BasicTableHandle<T>>,
+) {
   const {
     tableLayout = "fixed",
     columns,
@@ -41,7 +44,7 @@ function BasicTableInner<T extends AnyObject = AnyObject>(props: BasicTableProps
     strategy: "container",
     onLayout: setLayout,
   });
-  const { state, onPaginationChange, paginationConfig } = useBasicTableData({
+  const { state, onPaginationChange, paginationConfig } = useBasicTableData<T>({
     callback,
     onGetParams,
     isShowPage,
@@ -130,7 +133,7 @@ function BasicTableInner<T extends AnyObject = AnyObject>(props: BasicTableProps
 }
 
 type BasicTableComponent = (<T extends AnyObject = AnyObject>(
-  props: BasicTableProps<T> & React.RefAttributes<BasicTableHandle>,
+  props: BasicTableProps<T> & React.RefAttributes<BasicTableHandle<T>>,
 ) => React.ReactElement | null) & {
   ToolbarLeft: typeof BasicTableToolbarLeft;
   ToolbarRight: typeof BasicTableToolbarRight;

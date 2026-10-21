@@ -2,7 +2,7 @@ import { ELEMENT_ID_MAIN_CONTENT } from "@/layout/constants";
 import { useFlatRouteList } from "@/hooks/use-flat-route-list";
 import { getKeepAliveExclude, getPathnameFromCacheKey } from "@/router/utils/flat-route-list";
 
-import { theme } from "antd";
+import { Spin, theme } from "antd";
 import { KeepAlive, useKeepAliveRef } from "keepalive-for-react";
 import { Suspense, useEffect, useMemo, useRef } from "react";
 
@@ -15,9 +15,13 @@ import type { RootState } from "@/store";
 
 export interface LayoutContentProps {}
 
-/** 路由懒加载占位：留在内容区内，避免顶层 Suspense 整页 Loading 打断 KeepAlive 过渡 */
+/** 路由懒加载占位：仅内容区轻量 Spin，不遮挡侧栏/顶栏 */
 function RoutePageFallback() {
-  return <div className="route-page-fallback h-full min-h-0 w-full" aria-hidden />;
+  return (
+    <div className="route-page-fallback flex h-full min-h-0 w-full items-center justify-center" aria-busy>
+      <Spin size="default" />
+    </div>
+  );
 }
 
 export default function LayoutContent() {

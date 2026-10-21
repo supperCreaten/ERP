@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ERP生产管理平台</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
     <style>
       * {
         margin: 0;
@@ -22,9 +19,11 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+        font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Roboto", "Helvetica Neue", sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        background: #fff;
       }
       ul li {
         list-style: none;
@@ -32,9 +31,68 @@
       a {
         text-decoration: none;
       }
+
+      /* 首屏 loading：写在 HTML 内，JS 下载/解析前即可显示，避免白屏 */
+      #loading-container-e8a3a985 {
+        position: fixed;
+        inset: 0;
+        z-index: 9999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        width: 100vw;
+        background-color: #fff;
+        overflow: hidden;
+      }
+      #loading-e8a3a985,
+      #loading-e8a3a985::before,
+      #loading-e8a3a985::after {
+        width: 2.5em;
+        height: 2.5em;
+        border-radius: 50%;
+        animation: animation-loader 1.8s infinite ease-in-out;
+        animation-fill-mode: both;
+      }
+      #loading-e8a3a985 {
+        position: relative;
+        top: 0;
+        margin: 80px auto;
+        font-size: 10px;
+        color: #1677ff;
+        text-indent: -9999em;
+        transform: translate(-50%, 0);
+        animation-delay: -0.16s;
+      }
+      #loading-e8a3a985::before,
+      #loading-e8a3a985::after {
+        position: absolute;
+        top: 0;
+        content: "";
+      }
+      #loading-e8a3a985::before {
+        left: -3.5em;
+        animation-delay: -0.32s;
+      }
+      #loading-e8a3a985::after {
+        left: 3.5em;
+      }
+      @keyframes animation-loader {
+        0%,
+        80%,
+        100% {
+          box-shadow: 0 2.5em 0 -1.3em;
+        }
+        40% {
+          box-shadow: 0 2.5em 0 0;
+        }
+      }
     </style>
   </head>
   <body>
+    <div id="loading-container-e8a3a985" aria-busy="true" aria-live="polite">
+      <div id="loading-e8a3a985">Loading</div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

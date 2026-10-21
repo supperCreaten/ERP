@@ -1,64 +1,70 @@
-import { Card } from "antd";
-import { Children, isValidElement, ReactNode } from "react";
+import { Card } from "antd"
+import { Children, isValidElement, ReactNode } from "react"
 
-type SlotProps = { children?: ReactNode };
+type SlotProps = { children?: ReactNode }
 
 function ContentSectionHeader({ children }: SlotProps) {
-  return <>{children}</>;
+  return <>{children}</>
 }
-ContentSectionHeader.displayName = "ContentSection.Header";
+ContentSectionHeader.displayName = "ContentSection.Header"
 
 function ContentSectionContent({ children }: SlotProps) {
-  return <>{children}</>;
+  return <>{children}</>
 }
-ContentSectionContent.displayName = "ContentSection.Content";
+ContentSectionContent.displayName = "ContentSection.Content"
 
 function ContentSectionFooter({ children }: SlotProps) {
-  return <>{children}</>;
+  return <>{children}</>
 }
-ContentSectionFooter.displayName = "ContentSection.Footer";
+ContentSectionFooter.displayName = "ContentSection.Footer"
 
 function findSlot(children: ReactNode, slotName: string): ReactNode {
-  let slotContent: ReactNode = null;
+  let slotContent: ReactNode = null
 
   Children.forEach(children, (child) => {
-    if (!isValidElement<SlotProps>(child)) return;
-    const type = child.type as { displayName?: string };
+    if (!isValidElement<SlotProps>(child)) return
+    const type = child.type as { displayName?: string }
     if (type?.displayName === slotName) {
-      slotContent = child.props.children;
+      slotContent = child.props.children
     }
-  });
+  })
 
-  return slotContent;
+  return slotContent
 }
 
 type ContentSectionProps = {
-  children?: ReactNode;
-};
+  children?: ReactNode
+  isContentFullCard?: boolean
+}
 
-function ContentSection({ children }: ContentSectionProps) {
-  const header = findSlot(children, "ContentSection.Header");
-  const content = findSlot(children, "ContentSection.Content");
-  const footer = findSlot(children, "ContentSection.Footer");
-
+function ContentSection(props: ContentSectionProps) {
+  const { isContentFullCard = true, children } = props
+  const header = findSlot(children, "ContentSection.Header")
+  const content = findSlot(children, "ContentSection.Content")
+  const footer = findSlot(children, "ContentSection.Footer")
   return (
     <div className="box-border flex h-full min-h-0 flex-col p-2.5">
       {header && <div className="shrink-0">{header}</div>}
-      <Card className="flex-1 overflow-y-auto overflow-x-hidden my-1">{content}</Card>
+      {isContentFullCard ? (
+        <Card className="flex-1 overflow-y-auto overflow-x-hidden my-1">{content}</Card>
+      ) : (
+        <div className="flex-1 overflow-y-auto overflow-x-hidden my-1">{content}</div>
+      )}
+
       {footer && <div className="shrink-0 text-center mt-2">{footer}</div>}
     </div>
-  );
+  )
 }
 
 type ContentSectionComponent = typeof ContentSection & {
-  Header: typeof ContentSectionHeader;
-  Content: typeof ContentSectionContent;
-  Footer: typeof ContentSectionFooter;
-};
+  Header: typeof ContentSectionHeader
+  Content: typeof ContentSectionContent
+  Footer: typeof ContentSectionFooter
+}
 
-const ContentSectionWithSlots = ContentSection as ContentSectionComponent;
-ContentSectionWithSlots.Header = ContentSectionHeader;
-ContentSectionWithSlots.Content = ContentSectionContent;
-ContentSectionWithSlots.Footer = ContentSectionFooter;
+const ContentSectionWithSlots = ContentSection as ContentSectionComponent
+ContentSectionWithSlots.Header = ContentSectionHeader
+ContentSectionWithSlots.Content = ContentSectionContent
+ContentSectionWithSlots.Footer = ContentSectionFooter
 
-export default ContentSectionWithSlots;
+export default ContentSectionWithSlots

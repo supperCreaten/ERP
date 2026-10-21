@@ -55,7 +55,8 @@ export default function useDict(codes: string[]) {
     let cancelled = false;
 
     const fetchDict = async () => {
-      const entries = await Promise.all(
+      // allSettled：单个字典失败不影响其它已成功的结果
+      const results = await Promise.allSettled(
         stableCodes.map(async (code) => {
           if (dictCache[code]) {
             return [code, dictCache[code]] as const;
@@ -68,6 +69,13 @@ export default function useDict(codes: string[]) {
       );
 
       if (cancelled) return;
+
+      const entries = results.map((result, index) => {
+        if (result.status === "fulfilled") {
+          return result.value;
+        }
+        return [stableCodes[index], []] as const;
+      });
 
       setDict((prev) => ({
         ...prev,

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erp.system.mapper.SalesOrderMapper">
+
+    <resultMap id="SalesOrderResult" type="com.erp.system.domain.vo.SalesOrderVO">
+        <id     property="orderId"          column="order_id"/>
+        <result property="orderNo"          column="order_no"/>
+        <result property="billDate"         column="bill_date"/>
+        <result property="billStatus"       column="bill_status"/>
+        <result property="customerId"       column="customer_id"/>
+        <result property="customerName"     column="customer_name"/>
+        <result property="contactPerson"    column="contact_person"/>
+        <result property="contactPhone"     column="contact_phone"/>
+        <result property="consignee"        column="consignee"/>
+        <result property="deliveryAddress"  column="delivery_address"/>
+        <result property="salesDept"        column="sales_dept"/>
+        <result property="salesPerson"      column="sales_person"/>
+        <result property="businessType"     column="business_type"/>
+        <result property="salesType"        column="sales_type"/>
+        <result property="salesTypeText"    column="salesTypeText"/>
+        <result property="settlementMethod" column="settlement_method"/>
+        <result property="paymentTerms"     column="payment_terms"/>
+        <result property="deliveryMethod"   column="delivery_method"/>
+        <result property="transportMethod"  column="transport_method"/>
+        <result property="warehouse"        column="warehouse"/>
+        <result property="deliveryDate"     column="delivery_date"/>
+        <result property="plannedShipDate"  column="planned_ship_date"/>
+        <result property="contractNo"       column="contract_no"/>
+        <result property="customerOrderNo"  column="customer_order_no"/>
+        <result property="currency"         column="currency"/>
+        <result property="exchangeRate"     column="exchange_rate"/>
+        <result property="taxRate"          column="tax_rate"/>
+        <result property="taxIncluded"      column="tax_included"/>
+        <result property="discountRate"     column="discount_rate"/>
+        <result property="discountAmount"   column="discount_amount"/>
+        <result property="totalQty"         column="total_qty"/>
+        <result property="totalAmount"      column="total_amount"/>
+        <result property="taxAmount"        column="tax_amount"/>
+        <result property="invoiceType"      column="invoice_type"/>
+        <result property="invoiceTitle"     column="invoice_title"/>
+        <result property="invoiceAddress"   column="invoice_address"/>
+        <result property="operator"         column="operator"/>
+        <result property="auditor"          column="auditor"/>
+        <result property="auditDate"        column="audit_date"/>
+        <result property="isDel"            column="is_del"/>
+        <result property="createBy"         column="create_by"/>
+        <result property="createTime"       column="create_time"/>
+        <result property="updateBy"         column="update_by"/>
+        <result property="updateTime"       column="update_time"/>
+        <result property="remark"           column="remark"/>
+    </resultMap>
+
+    <sql id="selectSalesOrderVo">
+        select o.order_id, o.order_no, o.bill_date, o.bill_status, o.customer_id, o.customer_name,
+               o.contact_person, o.contact_phone, o.consignee, o.delivery_address,
+               o.sales_dept, o.sales_person, o.business_type, o.sales_type,
+               o.settlement_method, o.payment_terms, o.delivery_method, o.transport_method, o.warehouse,
+               o.delivery_date, o.planned_ship_date, o.contract_no, o.customer_order_no,
+               o.currency, o.exchange_rate, o.tax_rate, o.tax_included,
+               o.discount_rate, o.discount_amount, o.total_qty, o.total_amount, o.tax_amount,
+               o.invoice_type, o.invoice_title, o.invoice_address,
+               o.operator, o.auditor, o.audit_date,
+               o.is_del, o.create_by, o.create_time, o.update_by, o.update_time, o.remark,
+               d.dict_label as salesTypeText
+        from biz_sales_order o
+        left join sys_dict sd on sd.dict_code = 'sales_type' and sd.is_del = '0'
+        left join sys_dict_data d on d.dict_id = sd.dict_id and d.dict_value = o.sales_type and d.is_del = '0'
+    </sql>
+
+    <select id="selectSalesOrderList" parameterType="com.erp.system.domain.dto.SalesOrderQueryDTO" resultMap="SalesOrderResult">
+        <include refid="selectSalesOrderVo"/>
+        <where>
+            o.is_del = '0'
+            <if test="orderNo != null and orderNo != ''">
+                AND o.order_no like concat('%', #{orderNo}, '%')
+            </if>
+            <if test="customerId != null">
+                AND o.customer_id = #{customerId}
+            </if>
+            <if test="customerName != null and customerName != ''">
+                AND o.customer_name like concat('%', #{customerName}, '%')
+            </if>
+            <if test="billStatus != null and billStatus != ''">
+                AND o.bill_status = #{billStatus}
+            </if>
+            <if test="businessType != null and businessType != ''">
+                AND o.business_type = #{businessType}
+            </if>
+            <if test="salesType != null and salesType != ''">
+                AND o.sales_type = #{salesType}
+            </if>
+            <if test="settlementMethod != null and settlementMethod != ''">
+                AND o.settlement_method = #{settlementMethod}
+            </if>
+            <if test="salesPerson != null and salesPerson != ''">
+                AND o.sales_person = #{salesPerson}
+            </if>
+            <if test="contractNo != null and contractNo != ''">
+                AND o.contract_no like concat('%', #{contractNo}, '%')
+            </if>
+            <if test="billDateBegin != null and billDateBegin != ''">
+                AND o.bill_date &gt;= #{billDateBegin}
+            </if>
+            <if test="billDateEnd != null and billDateEnd != ''">
+                AND o.bill_date &lt;= #{billDateEnd}
+            </if>
+        </where>
+        order by o.order_id desc
+    </select>
+
+    <select id="selectSalesOrderById" parameterType="Long" resultMap="SalesOrderResult">
+        <include refid="selectSalesOrderVo"/>
+        where o.order_id = #{orderId} and o.is_del = '0'
+    </select>
+
+    <select id="selectSalesOrderByOrderNo" parameterType="String" resultMap="SalesOrderResult">
+        <include refid="selectSalesOrderVo"/>
+        where o.order_no = #{orderNo} and o.is_del = '0'
+        limit 1
+    </select>
+
+    <insert id="insertSalesOrder" parameterType="com.erp.system.domain.dto.SalesOrderAddDTO"
+            useGeneratedKeys="true" keyProperty="orderId" keyColumn="order_id">
+        insert into biz_sales_order (
+            order_no, bill_date, bill_status, customer_id, customer_name,
+            contact_person, contact_phone, consignee, delivery_address,
+            sales_dept, sales_person, business_type, sales_type,
+            settlement_method, payment_terms, delivery_method, transport_method, warehouse,
+            delivery_date, planned_ship_date, contract_no, customer_order_no,
+            currency, exchange_rate, tax_rate, tax_included,
+            discount_rate, discount_amount, total_qty, total_amount, tax_amount,
+            invoice_type, invoice_title, invoice_address,
+            operator, auditor, audit_date,
+            is_del, create_by, create_time, update_by, update_time, remark
+        ) values (
+            #{orderNo}, #{billDate}, #{billStatus}, #{customerId}, #{customerName},
+            #{contactPerson}, #{contactPhone}, #{consignee}, #{deliveryAddress},
+            #{salesDept}, #{salesPerson}, #{businessType}, #{salesType},
+            #{settlementMethod}, #{paymentTerms}, #{deliveryMethod}, #{transportMethod}, #{warehouse},
+            #{deliveryDate}, #{plannedShipDate}, #{contractNo}, #{customerOrderNo},
+            #{currency}, #{exchangeRate}, #{taxRate}, #{taxIncluded},
+            #{discountRate}, #{discountAmount}, #{totalQty}, #{totalAmount}, #{taxAmount},
+            #{invoiceType}, #{invoiceTitle}, #{invoiceAddress},
+            #{operator}, #{auditor}, #{auditDate},
+            '0', #{createBy}, sysdate(), #{updateBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updateSalesOrder" parameterType="com.erp.system.domain.dto.SalesOrderAddDTO">
+        update biz_sales_order
+        <set>
+            <if test="orderNo != null and orderNo != ''">order_no = #{orderNo},</if>
+            <if test="billDate != null">bill_date = #{billDate},</if>
+            <if test="billStatus != null">bill_status = #{billStatus},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="customerName != null">customer_name = #{customerName},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="consignee != null">consignee = #{consignee},</if>
+            <if test="deliveryAddress != null">delivery_address = #{deliveryAddress},</if>
+            <if test="salesDept != null">sales_dept = #{salesDept},</if>
+            <if test="salesPerson != null">sales_person = #{salesPerson},</if>
+            <if test="businessType != null">business_type = #{businessType},</if>
+            <if test="salesType != null">sales_type = #{salesType},</if>
+            <if test="settlementMethod != null">settlement_method = #{settlementMethod},</if>
+            <if test="paymentTerms != null">payment_terms = #{paymentTerms},</if>
+            <if test="deliveryMethod != null">delivery_method = #{deliveryMethod},</if>
+            <if test="transportMethod != null">transport_method = #{transportMethod},</if>
+            <if test="warehouse != null">warehouse = #{warehouse},</if>
+            <if test="deliveryDate != null">delivery_date = #{deliveryDate},</if>
+            <if test="plannedShipDate != null">planned_ship_date = #{plannedShipDate},</if>
+            <if test="contractNo != null">contract_no = #{contractNo},</if>
+            <if test="customerOrderNo != null">customer_order_no = #{customerOrderNo},</if>
+            <if test="currency != null">currency = #{currency},</if>
+            <if test="exchangeRate != null">exchange_rate = #{exchangeRate},</if>
+            <if test="taxRate != null">tax_rate = #{taxRate},</if>
+            <if test="taxIncluded != null">tax_included = #{taxIncluded},</if>
+            <if test="discountRate != null">discount_rate = #{discountRate},</if>
+            <if test="discountAmount != null">discount_amount = #{discountAmount},</if>
+            <if test="totalQty != null">total_qty = #{totalQty},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="invoiceType != null">invoice_type = #{invoiceType},</if>
+            <if test="invoiceTitle != null">invoice_title = #{invoiceTitle},</if>
+            <if test="invoiceAddress != null">invoice_address = #{invoiceAddress},</if>
+            <if test="operator != null">operator = #{operator},</if>
+            <if test="auditor != null">auditor = #{auditor},</if>
+            <if test="auditDate != null">audit_date = #{auditDate},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where order_id = #{orderId} and is_del = '0'
+    </update>
+
+    <update id="deleteSalesOrderByIds" parameterType="Long">
+        update biz_sales_order
+        set is_del = '1', update_time = sysdate()
+        where order_id in
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+</mapper>

@@ -8,6 +8,7 @@ import { addMenuIcon, findDeepestFirstItem, findRootMenuByPath, getParentKeys } 
 import CreateComponent from "@/components/CreateComponent";
 import { createIconifyIcon } from "@/icons";
 import { navigateInTransition } from "@/utils/navigate-transition";
+import { prefetchPageByPath } from "@/router/utils/generate-routes-from-backend";
 import { useLayout } from "../use-layout";
 export default function useMenu() {
   const { wholeMenus } = useSelector(menuDaTa);
@@ -84,6 +85,7 @@ export default function useMenu() {
         if (/https?:/.test(key)) {
           window.open(key);
         } else {
+          prefetchPageByPath(key);
           navigateInTransition(navigate, key);
         }
       } else {
@@ -92,8 +94,10 @@ export default function useMenu() {
         const targetMenu = findDeepestFirstItem(rootMenu?.children ?? []);
         /* 点击顶部的导航默认跳转到菜单下的第一个子项 */
         if (!targetMenu) {
+          prefetchPageByPath(key);
           navigateInTransition(navigate, key);
         } else {
+          prefetchPageByPath(targetMenu.key);
           navigateInTransition(navigate, targetMenu.key);
         }
       }

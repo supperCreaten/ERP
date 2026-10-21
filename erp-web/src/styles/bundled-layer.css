@@ -777,6 +777,12 @@ section.app-search-box[data-search-box] {
     flex-shrink: 0;
   }
 
+  /* BasicTable 表头 / 表体单元格内边距 */
+  [data-basic-table-full] .ant-table-wrapper .ant-table-thead > tr > th,
+  [data-basic-table-full] .ant-table-wrapper .ant-table-tbody > tr:not(.ant-table-measure-row) > td {
+    padding: 6px !important;
+  }
+
   /* MyDialog 通用弹框 */
   .app-dialog-modal.ant-modal-wrap {
     backdrop-filter: blur(6px);

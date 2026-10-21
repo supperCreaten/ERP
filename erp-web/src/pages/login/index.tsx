@@ -28,7 +28,13 @@ export default function LoginPage() {
     <ConfigProvider theme={LOGIN_THEME}>
       <div className="login-page">
         <div className="login-page__bg" aria-hidden>
-          <img className="login-page__photo" src={loginFactoryBg} alt="" />
+          <img
+            className="login-page__photo"
+            src={loginFactoryBg}
+            alt=""
+            decoding="async"
+            fetchPriority="high"
+          />
           <span className="login-page__veil" />
           <span className="login-page__vignette" />
         </div>

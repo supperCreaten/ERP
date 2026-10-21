@@ -97,38 +97,57 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
       },
     },
     build: {
-      minify: "terser",
-      target: "es2015",
-      // 减少初始包大小
+      /** esbuild 压缩更快；生产通过 esbuild.drop 去掉 console */
+      minify: "esbuild",
+      target: "es2018",
       /** 生成 .map 供上传反解，不在产物中引用（避免暴露给用户） */
       sourcemap: "hidden",
-      // 优化 CSS 代码分割
       cssCodeSplit: true,
       rollupOptions: {
         output: {
           chunkFileNames: `assets/js/[name].[hash:8].js`,
           entryFileNames: `assets/js/[name].[hash:16].js`,
           assetFileNames: `assets/[ext]/[name].[hash:8].[ext]`,
-          // 不要把 antd/echarts 整包打进单一 vendor：会触发超大 chunk，且阻断按路由拆出地图等重模块
-          manualChunks: {
-            react: ["react", "react-dom", "react-router-dom"],
+          /**
+           * 拆包注意避免 circular chunk：antd 生态与 dayjs 互相依赖，打进同一包。
+           * react 独立，便于与业务 chunk 并行下载、长期缓存。
+           */
+          manualChunks(id) {
+            if (!id.includes("node_modules")) return;
+            if (
+              id.includes("react-dom") ||
+              id.includes("react-router") ||
+              id.includes("/scheduler/") ||
+              /[\\/]react[\\/]/.test(id)
+            ) {
+              return "react-vendor";
+            }
+            if (
+              id.includes("antd") ||
+              id.includes("@ant-design") ||
+              id.includes("dayjs")
+            ) {
+              return "antd";
+            }
+            if (
+              id.includes("@reduxjs") ||
+              id.includes("/redux/") ||
+              id.includes("immer") ||
+              id.includes("axios")
+            ) {
+              return "utils-vendor";
+            }
           },
         },
       },
-      // 启用预加载，优先加载关键 chunk
       modulePreload: {
         polyfill: false,
       },
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-          pure_funcs: ["console.log"], // Remove console.log in production
-        },
-      },
-      // Performance budgets
       reportCompressedSize: true,
-      chunkSizeWarningLimit: 600, // 降低警告阈值
+      chunkSizeWarningLimit: 800,
+    },
+    esbuild: {
+      drop: isDev ? [] : ["console", "debugger"],
     },
     server: {
       host: "0.0.0.0",

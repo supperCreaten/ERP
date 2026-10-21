@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erp.system.mapper.SalesOrderItemMapper">
+
+    <resultMap id="SalesOrderItemResult" type="com.erp.system.domain.vo.SalesOrderItemVO">
+        <id     property="itemId"         column="item_id"/>
+        <result property="orderId"        column="order_id"/>
+        <result property="lineNo"         column="line_no"/>
+        <result property="materialCode"   column="material_code"/>
+        <result property="materialName"   column="material_name"/>
+        <result property="spec"           column="spec"/>
+        <result property="unit"           column="unit"/>
+        <result property="quantity"       column="quantity"/>
+        <result property="unitPrice"      column="unit_price"/>
+        <result property="amount"         column="amount"/>
+        <result property="taxRate"        column="tax_rate"/>
+        <result property="taxAmount"      column="tax_amount"/>
+        <result property="deliveryDate"   column="delivery_date"/>
+        <result property="warehouse"      column="warehouse"/>
+        <result property="deliveryQty"    column="delivery_qty"/>
+        <result property="shippedQty"     column="shipped_qty"/>
+        <result property="qualityReq"     column="quality_req"/>
+        <result property="packageReq"     column="package_req"/>
+        <result property="isDel"          column="is_del"/>
+        <result property="createBy"       column="create_by"/>
+        <result property="createTime"     column="create_time"/>
+        <result property="updateBy"       column="update_by"/>
+        <result property="updateTime"     column="update_time"/>
+        <result property="remark"         column="remark"/>
+    </resultMap>
+
+    <sql id="selectSalesOrderItemVo">
+        select item_id, order_id, line_no, material_code, material_name, spec, unit,
+               quantity, unit_price, amount, tax_rate, tax_amount, delivery_date, warehouse,
+               delivery_qty, shipped_qty, quality_req, package_req,
+               is_del, create_by, create_time, update_by, update_time, remark
+        from biz_sales_order_item
+    </sql>
+
+    <select id="selectItemsByOrderId" parameterType="Long" resultMap="SalesOrderItemResult">
+        <include refid="selectSalesOrderItemVo"/>
+        where order_id = #{orderId} and is_del = '0'
+        order by cast(line_no as unsigned), item_id
+    </select>
+
+    <insert id="insertSalesOrderItem" parameterType="com.erp.system.domain.dto.SalesOrderItemDTO"
+            useGeneratedKeys="true" keyProperty="itemId" keyColumn="item_id">
+        insert into biz_sales_order_item (
+            order_id, line_no, material_code, material_name, spec, unit,
+            quantity, unit_price, amount, tax_rate, tax_amount, delivery_date, warehouse,
+            delivery_qty, shipped_qty, quality_req, package_req,
+            is_del, create_by, create_time, update_by, update_time, remark
+        ) values (
+            #{orderId}, #{lineNo}, #{materialCode}, #{materialName}, #{spec}, #{unit},
+            #{quantity}, #{unitPrice}, #{amount}, #{taxRate}, #{taxAmount}, #{deliveryDate}, #{warehouse},
+            #{deliveryQty}, #{shippedQty}, #{qualityReq}, #{packageReq},
+            '0', #{createBy}, sysdate(), #{updateBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <insert id="batchInsertSalesOrderItem">
+        insert into biz_sales_order_item (
+            order_id, line_no, material_code, material_name, spec, unit,
+            quantity, unit_price, amount, tax_rate, tax_amount, delivery_date, warehouse,
+            delivery_qty, shipped_qty, quality_req, package_req,
+            is_del, create_by, create_time, update_by, update_time, remark
+        ) values
+        <foreach collection="items" item="item" separator=",">
+            (
+                #{item.orderId}, #{item.lineNo}, #{item.materialCode}, #{item.materialName}, #{item.spec}, #{item.unit},
+                #{item.quantity}, #{item.unitPrice}, #{item.amount}, #{item.taxRate}, #{item.taxAmount},
+                #{item.deliveryDate}, #{item.warehouse}, #{item.deliveryQty}, #{item.shippedQty},
+                #{item.qualityReq}, #{item.packageReq},
+                '0', #{item.createBy}, sysdate(), #{item.updateBy}, sysdate(), #{item.remark}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateSalesOrderItem" parameterType="com.erp.system.domain.dto.SalesOrderItemDTO">
+        update biz_sales_order_item
+        <set>
+            <if test="lineNo != null">line_no = #{lineNo},</if>
+            <if test="materialCode != null">material_code = #{materialCode},</if>
+            <if test="materialName != null">material_name = #{materialName},</if>
+            <if test="spec != null">spec = #{spec},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="taxRate != null">tax_rate = #{taxRate},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="deliveryDate != null">delivery_date = #{deliveryDate},</if>
+            <if test="warehouse != null">warehouse = #{warehouse},</if>
+            <if test="deliveryQty != null">delivery_qty = #{deliveryQty},</if>
+            <if test="shippedQty != null">shipped_qty = #{shippedQty},</if>
+            <if test="qualityReq != null">quality_req = #{qualityReq},</if>
+            <if test="packageReq != null">package_req = #{packageReq},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where item_id = #{itemId} and is_del = '0'
+    </update>
+
+    <update id="deleteItemsByOrderId" parameterType="Long">
+        update biz_sales_order_item
+        set is_del = '1', update_time = sysdate()
+        where order_id = #{orderId} and is_del = '0'
+    </update>
+
+    <update id="deleteItemsByOrderIds" parameterType="Long">
+        update biz_sales_order_item
+        set is_del = '1', update_time = sysdate()
+        where order_id in
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="deleteItemsByIds" parameterType="Long">
+        update biz_sales_order_item
+        set is_del = '1', update_time = sysdate()
+        where item_id in
+        <foreach collection="array" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+</mapper>

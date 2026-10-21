@@ -6,8 +6,9 @@ import { JSSThemeProvider } from "./components/JssThemeProvider";
 import { shallowEqual, useSelector } from "react-redux";
 import type { RootState } from "@/store";
 import { buildAntdThemeConfig } from "./styles/theme/build-antd-theme";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { SIDE_COLLAPSED_WIDTH } from "@/hooks/use-layout/constants";
+import { hideLoading } from "@/plugins/hide-loading";
 
 export default function App() {
   const { themeRadius, themeColorPrimary } = useSelector(
@@ -17,6 +18,11 @@ export default function App() {
     }),
     shallowEqual,
   );
+
+  /** Suspense 若命中缓存同步完成，LoadingScreen 可能不挂载；在此兜底关闭 HTML 首屏 loading */
+  useEffect(() => {
+    hideLoading();
+  }, []);
 
   const antdThemeConfig = useMemo(
     () =>

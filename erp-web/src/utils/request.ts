@@ -85,6 +85,28 @@ async function refreshAccessToken() {
   setAccessToken(accessToken);
 }
 
+/**
+ * 冷启动恢复会话：仅依赖 httpOnly refreshToken Cookie。
+ * 使用独立请求，失败时不走 logout，避免未登录进页时误清状态。
+ */
+export async function tryRestoreSession(): Promise<boolean> {
+  if (getAccessToken()) return true;
+  try {
+    const { data } = await axios.get<ApiBody>(REFRESH_URL, {
+      baseURL,
+      withCredentials: true,
+      timeout: 5000,
+    });
+    if (data?.code !== 200) return false;
+    const accessToken = typeof data.data === "string" ? data.data : "";
+    if (!accessToken) return false;
+    setAccessToken(accessToken);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function processQueue(error: unknown | null) {
   const queue = requestQueue;
   requestQueue = [];

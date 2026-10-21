@@ -49,12 +49,15 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         return;
       }
       dispatch(setUserInfo(userInfoRes));
+      /** 与菜单请求并行预取 Layout，鉴权结束即可直接渲染壳层 */
+      const layoutPrefetch = import("@/layout");
       let menuRes: Awaited<ReturnType<typeof api.getAuthMenus>> | undefined;
       try {
         menuRes = await api.getAuthMenus();
       } catch {
         menuRes = undefined;
       }
+      await layoutPrefetch.catch(() => undefined);
       const data = unwrapArray<MenuInfo>(menuRes);
       const menuList = generateMenuItemsFromMenuTree(data);
       dispatch(setMenuList(menuList ?? []));
